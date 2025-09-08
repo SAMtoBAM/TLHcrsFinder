@@ -21,3 +21,23 @@ This tool was developed for XXXX (please cite this publication if you find this 
 
     TLHcrsFinder.sh -a assembly.fa
 
+
+
+
+## How does TLHcrsFinder work
+
+TLHcrsFinder works in 10 main steps
+
+1. Extract 50kb from the ends of contigs >100kb
+2. Identify Telomeric sequences genomes wide and determine the number within the contig ends
+3. Align all contig ends to one another
+4. Calculate the average coverage of sliding windows within the 50kb ends
+5. Extract contiguous regions with a coverage > (0.75*'the number of telomeric sequences')
+6. Remove regions < 2kb
+7. Cluster the nucleotide sequence of the remaining regions using the 80/80 principal
+8. Consider the largest cluster as the TLHcrs repeat and take the largest version as the representative
+9. Search the whole genome using BLASTn using the representative TLHcrs repeat
+10. Plot the alignment and whole genome positions of TLHcrs repeats for manual verification/scrutiny
+
+
+
