@@ -1,3 +1,8 @@
+<p align="center" >
+    <img src="https://github.com/SAMtoBAM/TLHcrs_finder/blob/main/logo/TLHcrsFinder_logo.png" width=100%>
+</p>
+
+
 # TLHcrs_finder
 This repository contains scripts/tools in order to detect Telomere-Linked-Helicase Containing RegionS (TLHcrs) repeats
 
