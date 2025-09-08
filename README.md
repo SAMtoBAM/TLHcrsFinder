@@ -19,5 +19,5 @@ This tool was developed for XXXX (please cite this publication if you find this 
 
 # How to use
 
-    TLHcrsFinder.sh -a assemblies.fa
+    TLHcrsFinder.sh -a assembly.fa
 
