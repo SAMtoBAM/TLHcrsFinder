@@ -4,9 +4,9 @@ This repository contains scripts/tools in order to detect Telomere-Linked-Helica
 
 # Conda installation
 
-  conda install samtobam::tlhcrsfinder
+    conda install samtobam::tlhcrsfinder
 
 # How to use
 
-  tlhcrs_finder.sh -a assembblies.fa
+    tlhcrs_finder.sh -a assemblies.fa
 
