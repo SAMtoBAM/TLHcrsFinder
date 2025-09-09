@@ -4,7 +4,7 @@
 
 
 # TLHcrsFinder
-TLHcrsFinder is a tools desgined to detect and analyse **T**elomere-**L**inked-**H**elicase **C**ontaining Region**S** (TLHcrs) repeats
+TLHcrsFinder is a tools desgined to detect and analyse **T**elomere-**L**inked-**H**elicase **C**ontaining **R**egion**S** (TLHcrs) repeats
 
 TLHcrs repeats are, as the name describes, regions adjacent to telomeres that are conserved across chromosome ends and generally contain helicase genes <br/>
 These repeats, such as the most perhaps most well known Y-prime region in _S. cerevisiae_, are conserved across diverse fungi <br/>
@@ -64,11 +64,17 @@ TLHcrsFinder works in 10 main steps (each step is run on all assemblies provided
 9. Search the whole genome using BLASTn using the representative TLHcrs repeat
 10. Plot the alignment and whole genome positions of TLHcrs repeats for manual verification/scrutiny
 
-TLHcrsFinder runs an additional XX steps if provided multiple assemblies using -al
+TLHcrsFinder runs an additional 3 steps if provided multiple assemblies using -al
 11. Rapidly generate a k-mer NJ phylogeny using mashtree
 12. Calculate global-ANI (g-ANI) statistics for TLHcrs repeats within an assembly and between TLHcrs repeat representatives
 13. Plot the tree and g-ANI stats side by side
 
+
+## The coverage threshold
+This value is essentially is used to find repeats that are at least in this many copies compared to telomeric sequences <br/>
+This tools was designed primarily on Fusarium and Pyricularia assemblies which contain (if present) TLHcrs repeats on most chromosome ends <br/>
+However they may be less frequent in other species <br/>
+The default of 0.75 is too make sure that other potentially repetitive regions within 50kb of the contig ends are not kept
 
 ## Manually identified a secondary repeat?
 When looking a the alignments of the contig ends (and maybe manually reordering the ends etc), did you notice another region next to telomeres with several alignments? <br/>
