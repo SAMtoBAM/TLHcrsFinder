@@ -129,10 +129,11 @@ This step requires you to download a large database of conserved domains in orde
 
 Then use rpstblastn to search against these domains with your representative TLHcrs repeat OR your all TLHcrs repeats in your assembly <br/>
 Here we are using the TLHcrs repeat representative for GCA030345115 <br/>
-We also just grab the top 5 for the blast results for looking at the function using the cdd index table (this can definitely be increased if necessary)
+We also just grab the top 5 for the blast results for looking at the function using the cdd index table (this can definitely be increased if necessary) 
 
         sample="GCA030345115"
         input="GCA030345115_TLHcrsFinder_output/subtelomeric_repeats/GCA030345115.repeat_rep.fa"
+        ##alternatively if having used multiple assemblies with -al you could use the combined 'TLHcrsFinder_output/repeat_representatives.fa' file which contains all TLHcrs repeat representatives from assemblies where it was found
         tophits="5"
 
         ##get the outfmt 6 plus the actual sequence aigned in the query (our repeats)
