@@ -34,6 +34,7 @@ requirements:
   - bioconda::bioconductor-ggtree=3.14.0
   - conda-forge::r-phytools=2.4_4
   - conda-forge::r-aplot=0.2.8
+  - conda-forge::r-ggpubr
 
 test:
   commands:
