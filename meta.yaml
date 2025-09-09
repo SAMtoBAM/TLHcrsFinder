@@ -31,10 +31,9 @@ requirements:
   - bioconda::cd-hit=4.8.1
   - bioconda::mashtree=1.4.6
   - bioconda::lz-ani=1.2.3
-  - bioconda::bioconductor-ggtree
-  - bioconda::r-phytools
-  - conda-forge::r-phangorn
-  - conda-forge::r-aplot
+  - bioconda::bioconductor-ggtree=3.14.0
+  - conda-forge::r-phytools=2.4_4
+  - conda-forge::r-aplot=0.2.8
 
 test:
   commands:
