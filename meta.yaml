@@ -1,6 +1,6 @@
 package:
   name: tlhcrsfinder
-  version: "1.0.0"  # Change this to your desired version
+  version: "0.1.0"  # Change this to your desired version
 
 source:
   git_url: https://github.com/samtobam/TLHcrsFinder.git
@@ -19,16 +19,18 @@ requirements:
   run:
   - bioconda::bedtools=2.31.1
   - bioconda::mash=2.3
-  - bioconda::seqkit=2.10.1y
-  - bioconda::minimap2=2.30
+  - bioconda::seqkit=2.10.1
+  - bioconda::minimap2=2.28
   - bioconda::mummer4=4.0.1
-  - conda-forge::r-base=4.4.3
+  - conda-forge::r-base=4.4.0
   - conda-forge::r-gggenomes=1.0.1
-  - conda-forge::r-svglite=2.2.1
+  - conda-forge::r-svglite=2.1.3
   - bioconda::bioconductor-iranges=2.40.0
   - samtools=1.6
-  - bioconda::blast=2.17.0
+  - bioconda::blast=2.16.0
   - bioconda::cd-hit=4.8.1
+  - bioconda::mashtree=1.4.6
+  - bioconda::lz-ani=1.2.3
 
 
 test:
