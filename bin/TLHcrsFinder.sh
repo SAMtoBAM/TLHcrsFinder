@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+version="v0.1.0"
+
 
 ##############################################################
 ##################### SETTING VARIABLES ######################
@@ -88,7 +90,11 @@ case "$key" in
     -h|--help)
     echo "
  
+    TLHcrsFinder (version: ${version})
+
     TLHcrsFinder.sh -a assembly.fa
+    or
+    TLHcrsFinder.sh -al list.tsv
     
     Required inputs:
     -a | --assembly     Genome assembly in fasta format (*.fa / *.fasta / *.fna) and can be gzipped (*.gz) with bgzip
@@ -448,9 +454,19 @@ done
 
 ###because several assemblies were provided we can now compare their TLHcrs repeats
 
+##generate lz-ani similarity comparisons
+##within an assembly
+
+##between assemblies using the representative
+
+##generate a mashtree of the assemblies
 
 
+##generate the tree-heatmap plot
 
 
 
 fi
+
+
+echo "######### TLHcrsFinder has finished; E noho rā"
