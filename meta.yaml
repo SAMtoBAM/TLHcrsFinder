@@ -19,24 +19,16 @@ requirements:
   run:
   - bioconda::bedtools=2.31.1
   - bioconda::mash=2.3
-  - bioconda::seqkit=2.10.0
-  - bioconda::minimap2=2.29
+  - bioconda::seqkit=2.10.1y
+  - bioconda::minimap2=2.30
   - bioconda::mummer4=4.0.1
   - conda-forge::r-base=4.4.3
   - conda-forge::r-gggenomes=1.0.1
-  - conda-forge::r-svglite=2.1.3
+  - conda-forge::r-svglite=2.2.1
   - bioconda::bioconductor-iranges=2.40.0
-  - conda-forge::r-ggnewscale=0.5.1
-  - conda-forge::r-ggraph=2.2.1
-  - conda-forge::r-tidygraph=1.3.0
-  - conda-forge::r-tidyverse=2.0.0
-  - conda-forge::r-ggforce=0.5.0
-  - conda-forge::r-ggpubr=0.6.0
-  - conda-forge::ncbi-datasets-cli=18.3.1
   - samtools=1.6
-  - bioconda::sourmash>=4.9.0
-  - conda-forge::sourmash_plugin_branchwater=0.9.13
-  - bioconda::blast=2.16.0
+  - bioconda::blast=2.17.0
+  - bioconda::cd-hit=4.8.1
 
 
 test:
