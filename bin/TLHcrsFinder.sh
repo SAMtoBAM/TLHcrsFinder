@@ -18,6 +18,7 @@ sizemin="2000"
 threads="1"
 window="10"
 slide="5"
+bootstraps="1000"
 
 
 prefix="TLHcrsFinder"
@@ -77,6 +78,11 @@ case "$key" in
     shift
     shift
     ;;
+    -b|--bootstraps)
+    bootstraps="$2"
+    shift
+    shift
+    ;;
     -p|--prefix)
     prefix="$2"
     shift
@@ -107,6 +113,9 @@ case "$key" in
     -ct | --covthreshold    The amount of coverage required for a region to be considered for TLHcrs clustering relative to the number fo telomeres (Default = 0.75)
     -sm | --sizemin     The minimum size of a region passing the coverage threshold to be considered as a potential TLHcrs region (Default: 2000)
     
+    Multiple assembly specific parameters (if using --al)
+    -b | --bootstraps   Number of bootstrap tests to be performed by mashtree (Default: 1000)
+
     Optional parameters:
     -w | --window       Number of basepairs for window averaging for coverage (Default: 10)
     -s | --slide        Number of basepairs for the window to slide for coverage (Default: 5)
@@ -279,6 +288,9 @@ cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv | awk '{if($3 > 80 &&
 echo "contig;start;end" | tr ';' '\t' > ${prefix}.genome.bed
 cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> ${prefix}.genome.bed
 
+echo "######### Plotting contig end alignments and genome-wide distribution"
+
+
 Rscriptpath=$( which Finderplots_tlhcrs.R )
 cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
@@ -442,6 +454,9 @@ cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv | awk '{if($3 > 80 &&
 echo "contig;start;end" | tr ';' '\t' > ${prefix}.genome.bed
 cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> ${prefix}.genome.bed
 
+echo "######### Plotting contig end alignments and genome-wide distribution"
+
+
 Rscriptpath=$( which Finderplots_tlhcrs.R )
 cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
@@ -452,14 +467,80 @@ cd ../
 
 done
 
+
+cd ${output}
+
+echo "######### Running comparisons on TLHcrs repeats found across the set of assemblies provided"
+
 ###because several assemblies were provided we can now compare their TLHcrs repeats
+
+
+echo "######### Generating a k-mer based NJ tree using mashtree"
+
+##generate a mashtree of the assemblies
+##first just check if the assemblies are all compressed/uncompressed or a mix
+assemblytype=$( cat ${assemblylistpath} | awk -F "\t" 'BEGIN{compressed="no"; uncompressed="no"; mixed="no"} {if($2 ~ ".gz" && uncompressed == "no") {compressed="yes"} else if($2 ~ ".gz" && uncompressed == "yes") {compressed="yes"; mixed="yes"} else if($2 !~ ".gz" && compressed == "no") {uncompressed="yes"} else if($2 !~ ".gz" && compressed == "yes") {uncompressed="yes"; mixed="yes"}} END{if(mixed=="yes") {print "mixed"} else if(compressed=="yes") {print "compressed"} else {print "uncompressed"}}' )
+
+if [[ $assemblytype == "mixed"  ]]
+then
+mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa *.fa.gz -- --mindepth 0 --sort-order random --outtree assemblies.mashtree.bootstrap.dnd > mashtree.log
+else
+if [[ $assemblytype == "compressed"  ]]
+then
+mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa.gz -- --mindepth 0 --sort-order random --outtree assemblies.mashtree.bootstrap.dnd > mashtree.log
+else
+if [[ $assemblytype == "uncompressed"  ]]
+then
+mashtree_bootstrap.pl --reps ${bootstraps}  --numcpus ${threads} *.fa -- --mindepth 0 --sort-order random --outtree assemblies.mashtree.bootstrap.dnd > mashtree.log
+fi
+fi
+fi
+
+
+echo "######### Comparing global-ANI stats between TLHcrs repeats within and between assemblies"
 
 ##generate lz-ani similarity comparisons
 ##within an assembly
+mkdir subtelomeric_repeats_comparisons/
+echo "sample;repeat_representative;average_gANI;count" | tr ';' '\t' > gANI.within_repeats.tsv
+ls subtelomeric_repeats/*.WG_blast.bed | while read file
+do
+sample=$( echo "${file}" | awk -F "/" '{print $NF}' |  sed 's/.repeat_rep.WG_blast.bed//g' )
+assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print $NF}' )
+replength=$( grep -v '>' subtelomeric_repeats/${sample}.repeat_rep.fa | tr '\n' 'XXX' | sed 's/XXX//g' | wc -c  )
+rep=$( grep '>' subtelomeric_repeats/${sample}.repeat_rep.fa | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk -v tipsize="$tipsize" '{if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}'   )
+tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' | bedtools getfasta -fi ${assembly} -bed - -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
+##number of repeats used
+count=$( grep '>' subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa | wc -l )
+lz-ani all2all --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv
+
+##taking the global ANI = "The number of identical bases across local alignments divided by the length of the query/reference genome"
+##otherwise small alignments get found to have good ANI but could cover just a few bases
+cat subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv | awk '{print $6}' | awk ' { a[i++]=$1; } END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }' | awk -v sample="$sample" -v rep="$rep" -v count="$count" '{print sample"\t"rep"\t"$1"\t"count}' >> gANI.within_repeats.tsv
+
+done
 
 ##between assemblies using the representative
 
-##generate a mashtree of the assemblies
+##get a refined list of the representatives per repeat
+tail -n+2 gANI.within_repeats.tsv | awk -F "\t" '{print $2}' | while read bed
+do
+sample=$( echo "${bed}" | awk -F "_" '{print $1}' )
+assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print $NF}' )
+samtools faidx ${assembly} "${bed}" 
+done > repeat_representatives.fa
+
+##make a useful bed file of these representatives
+echo "contig;start;end" | tr ';' '\t' > repeat_representatives.bed
+grep '>' repeat_representatives.fa  | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' >> repeat_representatives.bed
+
+lz-ani all2all --in-fasta repeat_representatives.fa --out subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv
+echo "ref_sample;ref_rep;query_sample;query_rep;gANI" | tr ';' '\t' > gANI.between_repeat_representatives.tsv 
+tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\t"$4"\t"$6}' | awk -F "_" '{print $1"\t"$2"\t"$3}' | awk -F "\t" '{print $1"\t"$1"_"$2"\t"$3"\t"$3"_"$4"\t"$5}' >> gANI.between_repeat_representatives.tsv 
+tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\n"$4}' | sort -u | while read rep
+do
+echo "${rep}" | awk '{print $1"\t"$1"\t1"}' | awk -F "_" '{print $1"\t"$2"\t"$3}' | awk -F "\t" '{print $1"\t"$1"_"$2"\t"$3"\t"$3"_"$4"\t"$5}'
+done >> gANI.between_repeat_representatives.tsv 
 
 
 ##generate the tree-heatmap plot
