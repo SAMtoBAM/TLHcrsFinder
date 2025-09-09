@@ -32,7 +32,7 @@ feat_list <- list(
 
 ##plot it...
 ##may need to rearrange the order of the regions manually
-ends=gggenomes(seqs=contigs, links=subset(links), feat=feat_list)%>%
+ends=suppressMessages(suppressWarnings(print(gggenomes(seqs=contigs, links=subset(links), feat=feat_list)%>%
   pick() %>%
   sync() %>%
   flip()+
@@ -43,7 +43,7 @@ ends=gggenomes(seqs=contigs, links=subset(links), feat=feat_list)%>%
   geom_seq_label(hjust = 1.1, vjust = -0.1)+
   geom_variant(data=feats("telo"), shape=19, colour="black")+
   theme(legend.position = "top")+
-  coord_cartesian(xlim = c(-10000,50000))
+  coord_cartesian(xlim = c(-10000,50000)))))
 
 
 widthFrac = max(contigs$length+100000) / 10000
@@ -80,13 +80,13 @@ feat_list <- list(
 )
 
 
-WG=gggenomes(seqs=genomebed, feats=feat_list)%>%
+WG=suppressMessages(suppressWarnings(print(gggenomes(seqs=genomebed, feats=feat_list)%>%
   pick() +
   geom_seq()+
   geom_seq_label(hjust = 1.1, vjust = -0.1)+
   geom_variant(data=feats("subtelo"), color="red", position = position_nudge(y = .2), shape=6)+
   geom_variant(data=feats("telo"), color="black", size=1, shape=19)+
-  xlim(-500000,length)
+  xlim(-500000,length))))
 
 WGwidthFrac = max(genomebed$length+100000) / 500000
 #heightFrac = nrow(regionSeqs) / 2 # for default cases
