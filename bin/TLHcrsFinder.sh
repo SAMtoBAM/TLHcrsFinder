@@ -257,9 +257,7 @@ cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv | awk '{if($3 > 80 &&
 echo "contig;start;end" | tr ';' '\t' > ${prefix}.genome.bed
 cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> ${prefix}.genome.bed
 
-
-cat Finderplots_tlhcrs.R | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
+Rscriptpath=$( which Finderplots_tlhcrs.R )
+cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
 Rscript plotting_Rscripts/${prefix}.R
-
-done
