@@ -1,5 +1,5 @@
 package:
-  name: TLHcrsFinder
+  name: tlhcrsfinder
   version: "1.0.0"  # Change this to your desired version
 
 source:
