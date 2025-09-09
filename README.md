@@ -17,7 +17,7 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
 
 # Conda installation
 
-    conda install samtobam::TLHcrsfinder
+    conda install samtobam::tlhcrsfinder
 
 # How to use
 
