@@ -22,13 +22,15 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
 # How to use
 
     TLHcrsFinder.sh -a assembly.fa
+    ##or
+    TLHcrsFinder.sh -al assembly.fa
 
 
 
 
 ## How does TLHcrsFinder work
 
-TLHcrsFinder works in 10 main steps
+TLHcrsFinder works in 10 main steps (each step is run on all assemblies provided -al)
 
 1. Extract 50kb from the ends of contigs >100kb
 2. Identify Telomeric sequences genomes wide and determine the number within the contig ends
