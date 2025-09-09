@@ -23,9 +23,9 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
 # How to use
 
     TLHcrsFinder.sh -a assembly.fa
-    ##or
+    or
     TLHcrsFinder.sh -al list.tsv
-
+    
     Required inputs:
     -a | --assembly     Genome assembly in fasta format (*.fa / *.fasta / *.fna) and can be gzipped (*.gz) with bgzip
     or
@@ -37,6 +37,9 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
     -ct | --covthreshold    The amount of coverage required for a region to be considered for TLHcrs clustering relative to the number fo telomeres (Default = 0.75)
     -sm | --sizemin     The minimum size of a region passing the coverage threshold to be considered as a potential TLHcrs region (Default: 2000)
     
+    Multiple assembly specific parameters (if using --al)
+    -b | --bootstraps   Number of bootstrap tests to be performed by mashtree (Default: 1000)
+
     Optional parameters:
     -w | --window       Number of basepairs for window averaging for coverage (Default: 10)
     -s | --slide        Number of basepairs for the window to slide for coverage (Default: 5)
@@ -61,7 +64,10 @@ TLHcrsFinder works in 10 main steps (each step is run on all assemblies provided
 9. Search the whole genome using BLASTn using the representative TLHcrs repeat
 10. Plot the alignment and whole genome positions of TLHcrs repeats for manual verification/scrutiny
 
-
+TLHcrsFinder runs an additional XX steps if provided multiple assemblies using -al
+11. Rapidly generate a k-mer NJ phylogeny using mashtree
+12. Calculate global-ANI (g-ANI) statistics for TLHcrs repeats within an assembly and between TLHcrs repeat representatives
+13. Plot the tree and g-ANI stats side by side
 
 
 ## Manually identified a secondary repeat?
