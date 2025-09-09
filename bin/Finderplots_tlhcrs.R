@@ -1,7 +1,7 @@
 
 #### script is deisnged to visualise the alignments of the ends of contigs in order to idenify telomeric and subtelomeric repeats
 
-library(gggenomes)
+suppressMessages(library(gggenomes))
 
 
 ##get the regions of the HTR (+-50kb) bed file
@@ -11,7 +11,7 @@ contigs$length = contigs$end
 
 
 ##get the minimap2 paf file for the links
-links=read_links("contig_ends_alignments/SAMPLE.50kb_ends.nucmer.paf")
+links=suppressMessages(suppressWarnings(read_links("contig_ends_alignments/SAMPLE.50kb_ends.nucmer.paf")))
 
 ##get the telomeric end positions
 telomeres=read.csv("telomeric_repeats/SAMPLE.50kb_ends.telomeres.bed", sep='\t' , header=T)
