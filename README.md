@@ -95,7 +95,47 @@ In my run of TLHcrsFinder on 'GCA030345115.fa', the prefix was GCA030345115 and 
         ##Now you can plot both side by side
 
 
+## How to look for known functional domains
+TLHcrsFinder looks for the conserved region however the actual expressed portion of the repeat (generally a helicase) is only contained within the repeat <br/>
+Therefore you may be interested to find domains within the repeat as an indication of the function <br/>
+Notably, in [O'Donnell et al. 2025]() using TLHcrsFinder we found several examples of repeats containing genes that were not helicases.
 
+This step requires you to download a large database of conserved domains in order to search against <br/>
+
+        ##first download the appropriate conserved domain library (https://pmc.ncbi.nlm.nih.gov/articles/PMC7378889/)
+        wget ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/Cdd_LE.tar.gz
+        mkdir Cdd_LE
+        mv Cdd_LE.tar.gz Cdd_LE
+        cd Cdd_LE
+        tar -zxvf Cdd_LE.tar.gz
+
+        ##also download a library to read the cdd index numbers
+        wget ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/cddid.tbl.gz
+        gunzip cddid.tbl.gz
+        cd ../
+
+Then use rpstblastn to search against these domains with your representative TLHcrs repeat OR your all TLHcrs repeats in your assembly <br/>
+Here we are using the TLHcrs repeat representative for GCA030345115 <br/>
+We also just grab the top 5 for the blast results for looking at the function using the cdd index table (this can definitely be increased if necessary)
+
+        sample="GCA030345115"
+        input="GCA030345115_TLHcrsFinder_output/subtelomeric_repeats/GCA030345115.repeat_rep.fa"
+        tophits="5"
+
+        ##get the outfmt 6 plus the actual sequence aigned in the query (our repeats)
+        rpstblastn -query ${input} -db Cdd_LE/Cdd -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq" > ${sample}.repeat_rep.rpsblast_output.txt 
+ 
+        ##now take the best 5 hits for each representative
+        echo "repeat_representative;CDD;domain;title;description" | tr ';' '\t' > ${sample}.repeat_rep.rpsblast_output.besthit_description.tsv
+        grep '>' ${input} | sed 's/>//g' | while read rep
+        do
+        grep "${rep}" ${sample}.repeat_rep.rpsblast_output.txt | head -n${tophits}
+        done | while read line
+        do
+        cdd=$( echo "${line}" | cut -f2 | awk -F "|" '{print $3}' )
+        cdd2=$( grep ^${cdd} Cdd_LE/cddid.tbl | awk -F "\t" '{print "CDD:"$1"\t"$2"\t"$3"\t"$4}' )
+        echo "${line}" | awk -v cdd2="$cdd2" '{print $1"\t"cdd2}'
+        done  >> ${sample}.repeat_rep.rpsblast_output.besthit_description.tsv
 
 
 
