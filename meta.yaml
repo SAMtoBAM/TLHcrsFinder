@@ -33,6 +33,7 @@ requirements:
   - bioconda::lz-ani=1.2.3
   - bioconda::bioconductor-ggtree
   - bioconda::r-phytools
+  - conda-forge::r-phangorn
   - conda-forge::r-aplot
 
 test:
