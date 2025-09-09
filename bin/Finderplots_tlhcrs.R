@@ -1,7 +1,7 @@
 
 #### script is deisnged to visualise the alignments of the ends of contigs in order to idenify telomeric and subtelomeric repeats
 
-suppressMessages(library(gggenomes))
+suppressMessages(suppressWarnings(library(gggenomes)))
 
 
 ##get the regions of the HTR (+-50kb) bed file
