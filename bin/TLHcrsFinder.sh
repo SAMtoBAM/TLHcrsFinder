@@ -124,7 +124,7 @@ assemblypath=$( realpath ${assembly} )
 tipsize2=$( echo ${tipsize} | awk '{print $1/1000}' )
 
 ##check if assembly is compressed or not
-compressed=$( echo ${assembly} | awk -F "." '{if($NF == "gz" || $NF == "bgzip") {print "yes"} else {print "no"}}' )
+compressed=$( echo ${assembly} | awk -F "." '{if($NF == "gz" || $NF == "bgzip" || $NF == "gzip") {print "yes"} else {print "no"}}' )
 
 #######################################################################################################
 ####################################BEGIN FINDING THE TLHCRS REPEAT#################################### 
@@ -247,7 +247,7 @@ cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.tsv | awk '{if($3 > 80 
 ##and the whole genome
 if [[ $compressed == "yes" ]]
 then
-bgzip -dc ${assembly} | blastn -subject - -query subtelomeric_repeats/${prefix}.repeat_rep.fa  -outfmt 6 > subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv
+gzip -dc ${assembly} | blastn -subject - -query subtelomeric_repeats/${prefix}.repeat_rep.fa  -outfmt 6 > subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv
 else
 blastn -subject ${assembly} -query subtelomeric_repeats/${prefix}.repeat_rep.fa  -outfmt 6 > subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv
 fi
