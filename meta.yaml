@@ -31,6 +31,9 @@ requirements:
   - bioconda::cd-hit=4.8.1
   - bioconda::mashtree=1.4.6
   - bioconda::lz-ani=1.2.3
+  - bioconda::bioconductor-ggtree
+  - bioconda::r-phytools
+  - conda-forge::r-aplot
 
 test:
   commands:
