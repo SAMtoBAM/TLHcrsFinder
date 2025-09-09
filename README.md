@@ -11,7 +11,8 @@ These repeats, such as the most perhaps most well known Y-prime region in _S. ce
 With the advent of Long-read sequencing we now have an increasing number of well assembled genomes with the subtelomeres intact <br/>
 Therefore we are now primed for looking at the TLHcrs repeats and their evolution.
 
-All that is required to run TLHcrsFinder is an assembly in fasta format (can be bgzip compressed) or a tsv file containing a list of assemblies (first column: sample name; second column: assembly)
+All that is required to run TLHcrsFinder is an assembly in fasta format (can be bgzip compressed) or a tsv file containing a list of assemblies (first column: sample name; second column: assembly) <br/>
+NOTE: Do not use hyphens '-' or other special characters in the sample/file names
 
 This tool was developed for [O'Donnell et al. 2025]() (please cite this publication if you find this tool useful)
 
