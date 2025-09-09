@@ -11,7 +11,7 @@ These repeats, such as the most perhaps most well known Y-prime region in _S. ce
 With the advent of Long-read sequencing we now have an increasing number of well assembled genomes with the subtelomeres intact <br/>
 Therefore we are now primed for looking at the TLHcrs repeats and their evolution.
 
-All that is required to run TLHcrsFinder is an assembly in fasta format; can be bgzip compressed
+All that is required to run TLHcrsFinder is an assembly in fasta format (can be bgzip compressed) or a tsv file containing a list of assemblies (first column: sample name; second column: assembly)
 
 This tool was developed for [O'Donnell et al. 2025]() (please cite this publication if you find this tool useful)
 
@@ -23,8 +23,25 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
 
     TLHcrsFinder.sh -a assembly.fa
     ##or
-    TLHcrsFinder.sh -al assembly.fa
+    TLHcrsFinder.sh -al list.tsv
 
+    Required inputs:
+    -a | --assembly     Genome assembly in fasta format (*.fa / *.fasta / *.fna) and can be gzipped (*.gz) with bgzip
+    or
+    -al | --assemblylist     A tsv file containing sample names in the first column and assembly paths in the second column
+
+    Recommended inputs:
+    -ts | --tipsize     Length of contig ends to be extracted for TLHcrs detection (Default: 50000)
+    -tr | --telomererepeat       Telomeric repeat pattern (Default: TTAGGG)
+    -ct | --covthreshold    The amount of coverage required for a region to be considered for TLHcrs clustering relative to the number fo telomeres (Default = 0.75)
+    -sm | --sizemin     The minimum size of a region passing the coverage threshold to be considered as a potential TLHcrs region (Default: 2000)
+    
+    Optional parameters:
+    -w | --window       Number of basepairs for window averaging for coverage (Default: 10)
+    -s | --slide        Number of basepairs for the window to slide for coverage (Default: 5)
+    -p | --prefix       Prefix for output (Default: TLHcrsFinder)
+    -o | --output       Name of output folder for all results (default: TLHcrsFinder_output)
+    -h | --help         Print this help message
 
 
 
