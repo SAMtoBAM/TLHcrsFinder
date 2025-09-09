@@ -31,8 +31,6 @@ requirements:
   - bioconda::cd-hit=4.8.1
   - bioconda::mashtree=1.4.6
   - bioconda::lz-ani=1.2.3
-  - conda-forge::py-bgzip=0.4.0
-
 
 test:
   commands:
