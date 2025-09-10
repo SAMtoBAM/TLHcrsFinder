@@ -2,6 +2,12 @@
     <img src="https://github.com/SAMtoBAM/TLHcrs_finder/blob/main/logo/TLHcrsFinder_logo.png" width=100%>
 </p>
 
+[![Zenodo DOI](https://zenodo.org/badge/1052979411.svg)](https://doi.org/10.5281/zenodo.17093898)
+[![Anaconda_version](https://anaconda.org/samtobam/tlhcrsfinder/badges/version.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
+[![Anaconda_platforms](https://anaconda.org/samtobam/tlhcrsfinder/badges/platforms.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
+[![Anaconda_downloads](https://anaconda.org/samtobam/tlhcrsfinder/badges/downloads.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
+[![Anaconda-Server Badge](https://anaconda.org/samtobam/tlhcrsfinder/badges/latest_release_date.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
+
 
 # TLHcrsFinder
 TLHcrsFinder is a tools desgined to detect and analyse **T**elomere-**L**inked-**H**elicase **C**ontaining **R**egion**S** (TLHcrs) repeats
