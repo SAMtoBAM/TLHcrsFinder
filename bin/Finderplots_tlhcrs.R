@@ -1,8 +1,6 @@
 
-#### script is deisnged to visualise the alignments of the ends of contigs in order to idenify telomeric and subtelomeric repeats
-
+#### script is designed to visualise the alignments of the ends of contigs in order to identify telomeric and subtelomeric repeats (TLHcrs regions)
 suppressMessages(suppressWarnings(library(gggenomes)))
-
 
 ##get the regions of the HTR (+-50kb) bed file
 contigs=read.csv("contig_ends/SAMPLE.50kb_ends.bed", sep='\t', header=T)
@@ -33,17 +31,17 @@ feat_list <- list(
 ##plot it...
 ##may need to rearrange the order of the regions manually
 ends=suppressMessages(suppressWarnings(print(gggenomes(seqs=contigs, links=subset(links), feat=feat_list)%>%
-  pick() %>%
-  sync() %>%
-  flip()+
-  geom_link(aes(fill=((map_match/map_length)*100)) ,colour="black", alpha=0.5, offset = 0.05, size=0.1 )+
-  scale_fill_gradientn(colours=c("grey100","grey75", "grey50"), name ="Identity (%)", labels=c(80,90,100), breaks=c(80,90,100), limits = c(80, 100))+
-  geom_seq()+
-  geom_feat(data=feats("subtelo"), color="red", linewidth=1)+
-  geom_seq_label(hjust = 1.1, vjust = -0.1)+
-  geom_variant(data=feats("telo"), shape=19, colour="black")+
-  theme(legend.position = "top")+
-  coord_cartesian(xlim = c(-10000,50000)))))
+                                               pick() %>%
+                                               sync() %>%
+                                               flip()+
+                                               geom_link(aes(fill=((map_match/map_length)*100)) ,colour="black", alpha=0.5, offset = 0.05, size=0.1 )+
+                                               scale_fill_gradientn(colours=c("grey100","grey75", "grey50"), name ="Identity (%)", labels=c(80,90,100), breaks=c(80,90,100), limits = c(80, 100))+
+                                               geom_seq()+
+                                               geom_feat(data=feats("subtelo"), color="red", linewidth=1)+
+                                               geom_seq_label(hjust = 1.1, vjust = -0.1)+
+                                               geom_variant(data=feats("telo"), shape=19, colour="black")+
+                                               theme(legend.position = "top")+
+                                               coord_cartesian(xlim = c(-10000,50000)))))
 
 
 widthFrac = max(contigs$length+100000) / 10000
@@ -51,6 +49,34 @@ widthFrac = max(contigs$length+100000) / 10000
 heightFrac = nrow(contigs) / 2 #
 
 ggsave("plotting_Rscripts/SAMPLE.end_alignments.svg", plot = ends, units = "in", height = heightFrac, width = widthFrac, limitsize = FALSE)
+
+
+##same as above but now using only contig ends with at least one telomere or TLHcrsrepeat region
+##first get a nonredundant list of all the contig ends with telomeres or TLHcrs repeats
+seq_list <- union(repeatbed$seq_id, telomeres$seq_id)
+##now filter the contigs list by needing to contain one from the list
+contigs_filtered <- contigs[contigs$seq_id %in% seq_list, ]
+
+##now replot using the new contigs list
+ends_filtered=suppressMessages(suppressWarnings(print(gggenomes(seqs=contigs_filtered, links=subset(links), feat=feat_list)%>%
+                                                        pick() %>%
+                                                        sync() %>%
+                                                        flip()+
+                                                        geom_link(aes(fill=((map_match/map_length)*100)) ,colour="black", alpha=0.5, offset = 0.05, size=0.1 )+
+                                                        scale_fill_gradientn(colours=c("grey100","grey75", "grey50"), name ="Identity (%)", labels=c(80,90,100), breaks=c(80,90,100), limits = c(80, 100))+
+                                                        geom_seq()+
+                                                        geom_feat(data=feats("subtelo"), color="red", linewidth=1)+
+                                                        geom_seq_label(hjust = 1.1, vjust = -0.1)+
+                                                        geom_variant(data=feats("telo"), shape=19, colour="black")+
+                                                        theme(legend.position = "top")+
+                                                        coord_cartesian(xlim = c(-10000,50000)))))
+
+widthFrac = max(contigs_filtered$length+100000) / 10000
+#heightFrac = nrow(regionSeqs) / 2 # for default cases
+heightFrac = nrow(contigs_filtered) / 2 #
+
+ggsave("plotting_Rscripts/SAMPLE.end_alignments.filtered.svg", plot = ends_filtered, units = "in", height = heightFrac, width = widthFrac, limitsize = FALSE)
+
 
 
 ####plotting the position of the repeats at a genome wide level
@@ -81,12 +107,12 @@ feat_list <- list(
 
 
 WG=suppressMessages(suppressWarnings(print(gggenomes(seqs=genomebed, feats=feat_list)%>%
-  pick() +
-  geom_seq()+
-  geom_seq_label(hjust = 1.1, vjust = -0.1)+
-  geom_variant(data=feats("subtelo"), color="red", position = position_nudge(y = .2), shape=6)+
-  geom_variant(data=feats("telo"), color="black", size=1, shape=19)+
-  xlim(-500000,length))))
+                                             pick() +
+                                             geom_seq()+
+                                             geom_seq_label(hjust = 1.1, vjust = -0.1)+
+                                             geom_variant(data=feats("subtelo"), color="red", position = position_nudge(y = .2), shape=6)+
+                                             geom_variant(data=feats("telo"), color="black", size=1, shape=19)+
+                                             xlim(-500000,length))))
 
 WGwidthFrac = max(genomebed$length+100000) / 500000
 #heightFrac = nrow(regionSeqs) / 2 # for default cases

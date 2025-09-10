@@ -545,6 +545,10 @@ done >> gANI.between_repeat_representatives.tsv
 
 ##generate the tree-heatmap plot
 
+Rscriptpath2=$( which Compreplots_tlhcrs.R )
+cat ${Rscriptpath2} > plotting_Rscripts/phylogeny_plus_gANI_heatmap.R
+
+Rscript plotting_Rscripts/phylogeny_plus_gANI_heatmap.R
 
 
 fi
