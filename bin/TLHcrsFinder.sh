@@ -483,15 +483,15 @@ assemblytype=$( cat ${assemblylistpath} | awk -F "\t" 'BEGIN{compressed="no"; un
 
 if [[ $assemblytype == "mixed"  ]]
 then
-mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa *.fa.gz -- --mindepth 0 --sort-order random --outtree assemblies.mashtree.bootstrap.dnd > mashtree.log
+mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa *.fa.gz -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
 else
 if [[ $assemblytype == "compressed"  ]]
 then
-mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa.gz -- --mindepth 0 --sort-order random --outtree assemblies.mashtree.bootstrap.dnd > mashtree.log
+mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa.gz -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
 else
 if [[ $assemblytype == "uncompressed"  ]]
 then
-mashtree_bootstrap.pl --reps ${bootstraps}  --numcpus ${threads} *.fa -- --mindepth 0 --sort-order random --outtree assemblies.mashtree.bootstrap.dnd > mashtree.log
+mashtree_bootstrap.pl --reps ${bootstraps}  --numcpus ${threads} *.fa -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
 fi
 fi
 fi
@@ -512,7 +512,7 @@ rep=$( grep '>' subtelomeric_repeats/${sample}.repeat_rep.fa | sed 's/>//g' | tr
 tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' | bedtools getfasta -fi ${assembly} -bed - -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
 ##number of repeats used
 count=$( grep '>' subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa | wc -l )
-lz-ani all2all --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv
+lz-ani all2all -V 0 --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv 2> lz-ani.${sample}.log
 
 ##taking the global ANI = "The number of identical bases across local alignments divided by the length of the query/reference genome"
 ##otherwise small alignments get found to have good ANI but could cover just a few bases
@@ -534,7 +534,7 @@ done > repeat_representatives.fa
 echo "contig;start;end" | tr ';' '\t' > repeat_representatives.bed
 grep '>' repeat_representatives.fa  | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' >> repeat_representatives.bed
 
-lz-ani all2all --in-fasta repeat_representatives.fa --out subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv
+lz-ani all2all --in-fasta repeat_representatives.fa --out subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv 2> lz-ani.repeat_representatives.log
 echo "ref_sample;ref_rep;query_sample;query_rep;gANI" | tr ';' '\t' > gANI.between_repeat_representatives.tsv 
 tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\t"$4"\t"$6}' | awk -F "_" '{print $1"\t"$2"\t"$3}' | awk -F "\t" '{print $1"\t"$1"_"$2"\t"$3"\t"$3"_"$4"\t"$5}' >> gANI.between_repeat_representatives.tsv 
 tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\n"$4}' | sort -u | while read rep
@@ -552,6 +552,8 @@ Rscript plotting_Rscripts/phylogeny_plus_gANI_heatmap.R
 
 
 fi
+
+rm Rplots.pdf
 
 
 echo "######### TLHcrsFinder has finished; E noho rā"
