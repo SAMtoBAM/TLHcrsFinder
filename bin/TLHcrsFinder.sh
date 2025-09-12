@@ -251,6 +251,10 @@ bedtools coverage -a contig_ends/${prefix}.${tipsize2}kb_ends.10bpwindow.bed -b 
 echo "contig;start;end" | tr ';' '\t' > contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 cat contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.cov.bed | awk -v covmin="$covmin" '{if($4 > covmin) print}' | bedtools merge -d 10 | awk -v sizemin="$sizemin"  '{if($3-$2 > sizemin) print}' >> contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 
+##create warning if no repeats were found
+if [[ $( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed ) > 2 ]]
+then
+
 ##we shall now have identified any repeats that a common across these contig ends
 ##now we want to extract a reference sequence for the repeat based on all the coordinates identifed
 tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | bedtools getfasta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
@@ -297,7 +301,9 @@ cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 Rscript plotting_Rscripts/${prefix}.R
 
 
-
+else
+echo "No TLHcrs repeats found in this ${prefix}"
+fi
 
 
 else
@@ -417,6 +423,10 @@ bedtools coverage -a contig_ends/${prefix}.${tipsize2}kb_ends.10bpwindow.bed -b 
 echo "contig;start;end" | tr ';' '\t' > contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 cat contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.cov.bed | awk -v covmin="$covmin" '{if($4 > covmin) print}' | bedtools merge -d 10 | awk -v sizemin="$sizemin"  '{if($3-$2 > sizemin) print}' >> contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 
+##create warning if no repeats were found
+if [[ $( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed ) > 2 ]]
+then
+
 ##we shall now have identified any repeats that a common across these contig ends
 ##now we want to extract a reference sequence for the repeat based on all the coordinates identifed
 tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | bedtools getfasta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
@@ -462,6 +472,9 @@ cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
 Rscript plotting_Rscripts/${prefix}.R
 
+else
+echo "No TLHcrs repeats found in this ${prefix}"
+fi
 
 cd ../
 
