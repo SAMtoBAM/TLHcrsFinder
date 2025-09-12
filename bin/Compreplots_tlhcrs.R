@@ -64,4 +64,4 @@ final=between %>% insert_left(tree, width=0.75) %>% insert_right(within, width=0
 WGwidthFrac = (nrow(tree$data)-1)*5
 WGheightFrac = (nrow(tree$data)-1)*4
 
-ggsave("plotting_Rscripts/phylogeny_plus_gANI_heatmap.svg", plot = final, units = "in", height = WGheightFrac, width = WGwidthFrac, limitsize = FALSE)
+ggsave("phylogeny_plus_gANI_heatmap.svg", plot = final, units = "in", height = WGheightFrac, width = WGwidthFrac, limitsize = FALSE)

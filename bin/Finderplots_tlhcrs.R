@@ -82,7 +82,7 @@ ggsave("plotting_Rscripts/SAMPLE.end_alignments.filtered.svg", plot = ends_filte
 ####plotting the position of the repeats at a genome wide level
 
 ##just need two files, a bed file of the entire genome and coordinates of the repeats from alignment of a single repeat
-genomebed=read.csv("SAMPLE.genome.bed", sep='\t', header=T)
+genomebed=read.csv("assemblies/SAMPLE.genome.bed", sep='\t', header=T)
 genomebed$seq_id = genomebed$contig
 genomebed$length = genomebed$end
 
