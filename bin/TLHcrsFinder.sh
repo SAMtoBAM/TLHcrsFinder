@@ -302,7 +302,7 @@ Rscript plotting_Rscripts/${prefix}.R
 
 
 else
-echo "No TLHcrs repeats found in this ${prefix}"
+echo "######### WARNING: No TLHcrs repeats were found in ${prefix}"
 fi
 
 
@@ -473,7 +473,7 @@ cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 Rscript plotting_Rscripts/${prefix}.R
 
 else
-echo "No TLHcrs repeats found in this ${prefix}"
+echo "######### WARNING: No TLHcrs repeats were found in ${prefix}"
 fi
 
 cd ../
