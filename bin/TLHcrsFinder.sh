@@ -251,9 +251,9 @@ bedtools coverage -a contig_ends/${prefix}.${tipsize2}kb_ends.10bpwindow.bed -b 
 echo "contig;start;end" | tr ';' '\t' > contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 cat contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.cov.bed | awk -v covmin="$covmin" '{if($4 > covmin) print}' | bedtools merge -d 10 | awk -v sizemin="$sizemin"  '{if($3-$2 > sizemin) print}' >> contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 
-
+repeatcount=$( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | awk '{print $1}' )
 ##create warning if no repeats were found
-if [[ $( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed ) > 2 ]]
+if [ ${repeatcount} -gt 2 ]
 then
 
 
@@ -426,9 +426,9 @@ bedtools coverage -a contig_ends/${prefix}.${tipsize2}kb_ends.10bpwindow.bed -b 
 echo "contig;start;end" | tr ';' '\t' > contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 cat contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.cov.bed | awk -v covmin="$covmin" '{if($4 > covmin) print}' | bedtools merge -d 10 | awk -v sizemin="$sizemin"  '{if($3-$2 > sizemin) print}' >> contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 
-
+repeatcount=$( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | awk '{print $1}' )
 ##create warning if no repeats were found
-if [[ $( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed ) > 2 ]]
+if [ ${repeatcount} -gt 2 ]
 then
 
 ##we shall now have identified any repeats that a common across these contig ends
