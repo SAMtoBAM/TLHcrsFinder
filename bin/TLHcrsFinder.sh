@@ -170,7 +170,7 @@ echo "######### Output in ${output}"
 mkdir ${output}
 cd ${output}
 
-
+mkdir assemblies
 mkdir contig_ends
 mkdir contig_ends_alignments
 mkdir telomeric_repeats
@@ -179,8 +179,8 @@ mkdir subtelomeric_repeats
 mkdir plotting_Rscripts
 
 ##create link to assembly in the output folder
-ln -sf ${assemblypath} ./
-assembly=$( echo ${assembly} | awk -F "/" '{print $NF}' )
+ln -sf ${assemblypath} assemblies/
+assembly=$( echo ${assembly} | awk -F "/" '{print "assemblies/"$NF}' )
 
 ##get the sametools index as a quick way to generate a file with contig sizes etc
 samtools faidx ${assembly}
@@ -251,9 +251,11 @@ bedtools coverage -a contig_ends/${prefix}.${tipsize2}kb_ends.10bpwindow.bed -b 
 echo "contig;start;end" | tr ';' '\t' > contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 cat contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.cov.bed | awk -v covmin="$covmin" '{if($4 > covmin) print}' | bedtools merge -d 10 | awk -v sizemin="$sizemin"  '{if($3-$2 > sizemin) print}' >> contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 
+
 ##create warning if no repeats were found
 if [[ $( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed ) > 2 ]]
 then
+
 
 ##we shall now have identified any repeats that a common across these contig ends
 ##now we want to extract a reference sequence for the repeat based on all the coordinates identifed
@@ -289,8 +291,8 @@ fi
 echo "contig;start;end" | tr ';' '\t' > subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed
 cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv | awk '{if($3 > 80 && $4 > 500) print}' | awk '{print $2"\t"$9"\t"$10}' | awk '{if($2>$3) {print $1"\t"$3"\t"$2} else {print}}' | sort -k1,1 -k2,2n | bedtools merge -d 10 >> subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed
 ##get bed file for the whole genome so we can plot the positions of the repeats alongside it
-echo "contig;start;end" | tr ';' '\t' > ${prefix}.genome.bed
-cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> ${prefix}.genome.bed
+echo "contig;start;end" | tr ';' '\t' > assemblies/${prefix}.genome.bed
+cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> assemblies/${prefix}.genome.bed
 
 echo "######### Plotting contig end alignments and genome-wide distribution"
 
@@ -300,10 +302,10 @@ cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
 Rscript plotting_Rscripts/${prefix}.R
 
-
 else
 echo "######### WARNING: No TLHcrs repeats were found in ${prefix}"
 fi
+
 
 
 else
@@ -327,6 +329,7 @@ echo "######### Output in ${output}"
 ##make an output directory and move into it
 mkdir ${output}
 
+mkdir ${output}/assemblies
 mkdir ${output}/contig_ends
 mkdir ${output}/contig_ends_alignments
 mkdir ${output}/telomeric_repeats
@@ -346,8 +349,8 @@ cd ${output}
 echo "######### Running TLHcrsFinder on sample ${prefix}"
 
 ##create link to assembly in the output folder
-ln -sf ${assemblypath} ./
-assembly=$( echo ${assembly} | awk -F "/" '{print $NF}' )
+ln -sf ${assemblypath} assemblies/
+assembly=$( echo ${assembly} | awk -F "/" '{print "assemblies/"$NF}' )
 
 
 ##check if assembly is compressed or not
@@ -423,6 +426,7 @@ bedtools coverage -a contig_ends/${prefix}.${tipsize2}kb_ends.10bpwindow.bed -b 
 echo "contig;start;end" | tr ';' '\t' > contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 cat contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.cov.bed | awk -v covmin="$covmin" '{if($4 > covmin) print}' | bedtools merge -d 10 | awk -v sizemin="$sizemin"  '{if($3-$2 > sizemin) print}' >> contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed
 
+
 ##create warning if no repeats were found
 if [[ $( wc -l contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed ) > 2 ]]
 then
@@ -461,8 +465,8 @@ fi
 echo "contig;start;end" | tr ';' '\t' > subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed
 cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.tsv | awk '{if($3 > 80 && $4 > 500) print}' | awk '{print $2"\t"$9"\t"$10}' | awk '{if($2>$3) {print $1"\t"$3"\t"$2} else {print}}' | sort -k1,1 -k2,2n | bedtools merge -d 10 >> subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed
 ##get bed file for the whole genome so we can plot the positions of the repeats alongside it
-echo "contig;start;end" | tr ';' '\t' > ${prefix}.genome.bed
-cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> ${prefix}.genome.bed
+echo "contig;start;end" | tr ';' '\t' > assemblies/${prefix}.genome.bed
+cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> assemblies/${prefix}.genome.bed
 
 echo "######### Plotting contig end alignments and genome-wide distribution"
 
@@ -472,9 +476,11 @@ cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
 Rscript plotting_Rscripts/${prefix}.R
 
+
 else
 echo "######### WARNING: No TLHcrs repeats were found in ${prefix}"
 fi
+
 
 cd ../
 
@@ -496,15 +502,15 @@ assemblytype=$( cat ${assemblylistpath} | awk -F "\t" 'BEGIN{compressed="no"; un
 
 if [[ $assemblytype == "mixed"  ]]
 then
-mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa *.fa.gz -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
+mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} assemblies/*.fa assemblies/*.fa.gz -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
 else
 if [[ $assemblytype == "compressed"  ]]
 then
-mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} *.fa.gz -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
+mashtree_bootstrap.pl --reps ${bootstraps} --numcpus ${threads} assemblies/*.fa.gz -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
 else
 if [[ $assemblytype == "uncompressed"  ]]
 then
-mashtree_bootstrap.pl --reps ${bootstraps}  --numcpus ${threads} *.fa -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
+mashtree_bootstrap.pl --reps ${bootstraps}  --numcpus ${threads} assemblies/*.fa -- --mindepth 0 --sort-order random > assemblies.mashtree.bootstrap.dnd 2> mashtree.log
 fi
 fi
 fi
@@ -519,7 +525,7 @@ echo "sample;repeat_representative;average_gANI;count" | tr ';' '\t' > gANI.with
 ls subtelomeric_repeats/*.WG_blast.bed | while read file
 do
 sample=$( echo "${file}" | awk -F "/" '{print $NF}' |  sed 's/.repeat_rep.WG_blast.bed//g' )
-assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print $NF}' )
+assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
 replength=$( grep -v '>' subtelomeric_repeats/${sample}.repeat_rep.fa | tr '\n' 'XXX' | sed 's/XXX//g' | wc -c  )
 rep=$( grep '>' subtelomeric_repeats/${sample}.repeat_rep.fa | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk -v tipsize="$tipsize" '{if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}'   )
 tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' | bedtools getfasta -fi ${assembly} -bed - -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
@@ -539,7 +545,7 @@ done
 tail -n+2 gANI.within_repeats.tsv | awk -F "\t" '{print $2}' | while read bed
 do
 sample=$( echo "${bed}" | awk -F "_" '{print $1}' )
-assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print $NF}' )
+assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
 samtools faidx ${assembly} "${bed}" 
 done > repeat_representatives.fa
 
@@ -559,9 +565,9 @@ done >> gANI.between_repeat_representatives.tsv
 ##generate the tree-heatmap plot
 
 Rscriptpath2=$( which Compreplots_tlhcrs.R )
-cat ${Rscriptpath2} > plotting_Rscripts/phylogeny_plus_gANI_heatmap.R
+cat ${Rscriptpath2} > phylogeny_plus_gANI_heatmap.R
 
-Rscript plotting_Rscripts/phylogeny_plus_gANI_heatmap.R
+Rscript phylogeny_plus_gANI_heatmap.R
 
 
 fi
