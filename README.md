@@ -76,6 +76,28 @@ TLHcrsFinder runs an additional 3 steps if provided multiple assemblies using -a
 13. Plot the tree and g-ANI stats side by side
 
 
+## Important output files
+-The primary output is the **summary_stats.tsv** file with some summarising data per assembly <br/>
+    Column 1 : 'sample' : name given to samples in -al file or prefix if a single assembly (-a) <br/>
+    Column 2 : 'assembly' : name of assembly file provided <br/>
+    Column 3 : 'contigs' : Number of contigs in assembly <br/>
+    Column 4 : 'telomeric_repeats' : Number of good telomeric repeat regions found (minimum of 50bp) <br/>
+    Column 5 : 'telomeric_repeats_contig_ends' : Number of the above telomeric repeats found within the contig ends (Default: 50kb from end of contigs larger than 100kb) <br/>
+    Column 6 : 'TLHcrs_regions' : Number of good TLHcrs regions detected genome wide <br/>
+    Column 7 : 'TLHcrs_regions_contig_ends' : Number of the above TLHcrs repeats found within the contig ends (Default: 50kb from end of contigs larger than 100kb) <br/>
+    Column 8 : 'TLHcrs_representative_coords' : The coordinates in the assembly to the TLHcrs representative used in the analyses <br/>
+    Column 9 : 'TLHcrs_representative_size' : The size in basepairs of the TLHcrs representative <br/>
+    Column 10 : 'TLHcrs_representative_size' : The average size of the regions detected that clustered with the TLHcrs representative <br/>
+    Column 12 : 'TLHcrs_representative' : The nucleotide sequence of the TLHcrs representative <br/>
+
+-Per sample plots are all placed in **plotting_Rscripts** <br/>
+    plotting_Rscripts/\*.end_alignments.svg : Contigs with ends aligned with TLHcrs repeat regions highlighted (red) and telomeric repeats showing (black dots) <br/>
+    plotting_Rscripts/\*.end_alignments.filtered.svg : Same as above but only with contig ends containing at least one telomeric repeat or TLHcrs repeat <br/>
+    plotting_Rscripts/\*.whole_genome.svg : Positions of telomeric_repeats (dots) and TLHcrs_regions (triangles) in the whole genome <br/>
+
+-Comparisons between samples are placed in output folder
+    phylogeny_plus_gANI_heatmap.svg : a midrooted mashtree of all assemblies horizontally aligned with lz-ani calulated global ANI (gANI) scores comparing the representatives of each assemblies TLHcrs repeat. Far right is the same gANI scores but calculated between repeats for the same assembly.
+
 ## The coverage threshold
 This value is essentially is used to find repeats that are at least in this many copies compared to telomeric sequences <br/>
 This tools was designed primarily on Fusarium and Pyricularia assemblies which contain (if present) TLHcrs repeats on most chromosome ends <br/>
