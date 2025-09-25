@@ -591,26 +591,38 @@ done
 
 ##between assemblies using the representative
 
+##make a useful bed file of these representatives
+echo "contig;start;end;sample" | tr ';' '\t' > repeat_representatives.bed
+
 ##get a refined list of the representatives per repeat
 tail -n+2 gANI.within_repeats.tsv | awk -F "\t" '{print $1"\t"$2}' | while read bed
 do
 sample=$( echo "${bed}" | awk -F "\t" '{print $1}' )
 coords=$( echo "${bed}" | awk -F "\t" '{print $2}' )
 assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
-samtools faidx ${assembly} "${coords}" 
+echo "${coords};${sample}" | tr ';' '\t' | tr '-' '\t' | tr ':' '\t' >> repeat_representatives.bed
+samtools faidx ${assembly} "${coords}"
 done > repeat_representatives.fa
-
-##make a useful bed file of these representatives
-echo "contig;start;end" | tr ';' '\t' > repeat_representatives.bed
-grep '>' repeat_representatives.fa  | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' >> repeat_representatives.bed
 
 lz-ani all2all --in-fasta repeat_representatives.fa --out subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv 2> lz-ani.repeat_representatives.log
 echo "ref_sample;ref_rep;query_sample;query_rep;gANI" | tr ';' '\t' > gANI.between_repeat_representatives.tsv 
-tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\t"$4"\t"$6}' | awk -F "_" '{print $1"\t"$2"\t"$3}' | awk -F "\t" '{print $1"\t"$1"_"$2"\t"$3"\t"$3"_"$4"\t"$5}' >> gANI.between_repeat_representatives.tsv 
+#tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\t"$4"\t"$6}' | awk -F "_" '{print $1"\t"$2"\t"$3}' | awk -F "\t" '{print $1"\t"$1"_"$2"\t"$3"\t"$3"_"$4"\t"$5}' >> gANI.between_repeat_representatives.tsv 
+
+tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\t"$4"\t"$6}' | while read line
+do
+refrep=$( echo "${line}"  | awk -F "\t" '{print $1}' )
+queryrep=$( echo "${line}"  | awk -F "\t" '{print $2}' )
+gANI=$( echo "${line}"  | awk -F "\t" '{print $3}' )
+refsample=$( cat repeat_representatives.bed | awk -F "\t" '{print $1":"$2"-"$3"\t"$4}' | awk -F "\t" -v refrep="$refrep" '{if($1 == refrep) {print $2}}' )
+querysample=$( cat repeat_representatives.bed | awk -F "\t" '{print $1":"$2"-"$3"\t"$4}' | awk -F "\t" -v queryrep="$queryrep" '{if($1 == queryrep) {print $2}}' )
+echo "${refsample};${refrep};${querysample};${queryrep};${gANI}" | tr ';' '\t' >> gANI.between_repeat_representatives.tsv 
+done
+
 tail -n+2 subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv | awk -F "\t" '{print $3"\n"$4}' | sort -u | while read rep
 do
-echo "${rep}" | awk '{print $1"\t"$1"\t1"}' | awk -F "_" '{print $1"\t"$2"\t"$3}' | awk -F "\t" '{print $1"\t"$1"_"$2"\t"$3"\t"$3"_"$4"\t"$5}'
-done >> gANI.between_repeat_representatives.tsv 
+repsample=$( cat repeat_representatives.bed | awk -F "\t" '{print $1":"$2"-"$3"\t"$4}' | awk -F "\t" -v rep="$rep" '{if($1 == rep) {print $2}}' )
+echo "${repsample};${rep};${repsample};${rep};1" | tr ';' '\t'  >> gANI.between_repeat_representatives.tsv
+done 
 
 
 ##generate the tree-heatmap plot
