@@ -367,7 +367,7 @@ do
 prefix=$( echo "${line}" | awk -F "\t" '{print $1}' )
 assembly=$( echo "${line}" | awk -F "\t" '{print $2}' )
 assemblypath=$( realpath ${assembly} )
-[ ! -f "${assemblypath}" ] && echo "ERROR: Cannot find path to assembly from sample ${sample} provided by -al; check path to assembly is correct and file exists" && exit
+[ ! -f "${assemblypath}" ] && echo "ERROR: Cannot find path to assembly from sample ${prefix} provided by -al; check path to assembly is correct and file exists" && exit
 
 cd ${output}
 
