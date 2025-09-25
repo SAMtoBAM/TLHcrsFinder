@@ -458,7 +458,7 @@ then
 
 ##we shall now have identified any repeats that a common across these contig ends
 ##now we want to extract a reference sequence for the repeat based on all the coordinates identifed
-tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | ta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
+tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | bedtools getfasta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
 
 ##then generate clusters based on a 80/80/80 threshold
 ##and selecting a representative per cluster (the longest sequence meeting the threshold)
