@@ -178,6 +178,10 @@ mkdir contig_ends_coverage
 mkdir subtelomeric_repeats
 mkdir plotting_Rscripts
 
+##geneate header for the summary file 
+echo "sample;assembly;contigs;telomeric_repeats;telomeric_repeats_contig_ends;TLHcrs_regions;TLHcrs_regions_contig_ends;contig_ends_TLHcrs;TLHcrs_representative_coords;TLHcrs_representative_size;TLHcrs_average_size;TLHcrs_representative" | tr ';' '\t' > summary_stats.tsv
+
+
 ##create link to assembly in the output folder
 ln -sf ${assemblypath} assemblies/
 assembly=$( echo ${assembly} | awk -F "/" '{print "assemblies/"$NF}' )
@@ -303,9 +307,26 @@ cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 Rscript plotting_Rscripts/${prefix}.R
 
 else
-echo "######### WARNING: No TLHcrs repeats were found in ${prefix}"
+echo "######### WARNING: No TLHcrs repeats were found in ${prefix}:${assembly}"
 fi
 
+echo "######### Adding results to summary file"
+
+##sample = $prefix
+assembly2=$( echo ${assembly} | awk -F "/" '{print $NF}' )
+assemblytype=$( echo ${assembly2} | awk -F "." '{if($NF == "gz" || $NF == "bgzip" || $NF == "gzip" ) {print "compressed"} else {print "uncompressed"}}' )
+contigs=$( if [[ $assemblytype == "uncompressed"  ]]; then grep '>' ${assemblypath} | wc -l ; else zgrep '>' ${assemblypath} | wc -l ; fi )
+telomericrepeats=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | wc -l ; else echo "0" ; fi )
+telomericends=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | sort -u | wc -l ; else echo "0" ; fi  )
+TLHcrsrepeats=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed | wc -l ; else echo "0" ; fi  )
+TLHcrsends=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | wc -l ; else echo "0" ; fi  )
+endsTLHcrs=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | awk -F "\t" '{print $1}' | sort -u | wc -l ; else echo "0" ; fi  )
+repeatrepcoords=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | awk '{if($0 ~ ">") {print $0} else {print "NA"}}' | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk '{if($0 == "NA") {print $0} else if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}' ; else echo "NA" ; fi  )
+repeatrepsize=$(if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c ; else echo "NA" ; fi )
+repeatavgsize=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_cluster.fa" ]; then seqkit stat -T subtelomeric_repeats/${prefix}.repeat_cluster.fa  | awk 'NR>1 {print $7}' | awk -F "." '{print $1}' ; else echo "NA" ; fi )
+repeatrep=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' ; else echo "NA" ; fi  )
+
+echo "${prefix};${assembly2};${contigs};${telomericrepeats};${telomericends};${TLHcrsrepeats};${TLHcrsends};${endsTLHcrs};${repeatrepcoords};${repeatrepsize};${repeatavgsize};${repeatrep}" | tr ';' '\t' >> summary_stats.tsv
 
 
 else
@@ -336,6 +357,10 @@ mkdir ${output}/telomeric_repeats
 mkdir ${output}/contig_ends_coverage
 mkdir ${output}/subtelomeric_repeats
 mkdir ${output}/plotting_Rscripts
+
+##geneate header for the summary file 
+echo "sample;assembly;contigs;telomeric_repeats;telomeric_repeats_contig_ends;TLHcrs_regions;TLHcrs_regions_contig_ends;contig_ends_TLHcrs;TLHcrs_representative_coords;TLHcrs_representative_size;TLHcrs_average_size;TLHcrs_representative" | tr ';' '\t' > ${output}/summary_stats.tsv
+
 
 cat ${assemblylistpath} | while read line
 do
@@ -433,7 +458,7 @@ then
 
 ##we shall now have identified any repeats that a common across these contig ends
 ##now we want to extract a reference sequence for the repeat based on all the coordinates identifed
-tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | bedtools getfasta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
+tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | ta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
 
 ##then generate clusters based on a 80/80/80 threshold
 ##and selecting a representative per cluster (the longest sequence meeting the threshold)
@@ -478,8 +503,29 @@ Rscript plotting_Rscripts/${prefix}.R
 
 
 else
-echo "######### WARNING: No TLHcrs repeats were found in ${prefix}"
+echo "######### WARNING: No TLHcrs repeats were found in ${prefix}:${assembly}"
 fi
+
+
+echo "######### Adding results to summary file"
+
+##sample = $prefix
+assembly2=$( echo ${assembly} | awk -F "/" '{print $NF}' )
+assemblytype=$( echo ${assembly2} | awk -F "." '{if($NF == "gz" || $NF == "bgzip" || $NF == "gzip" ) {print "compressed"} else {print "uncompressed"}}' )
+contigs=$( if [[ $assemblytype == "uncompressed"  ]]; then grep '>' ${assemblypath} | wc -l ; else zgrep '>' ${assemblypath} | wc -l ; fi )
+telomericrepeats=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | wc -l ; else echo "0" ; fi )
+telomericends=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | sort -u | wc -l ; else echo "0" ; fi  )
+TLHcrsrepeats=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed | wc -l ; else echo "0" ; fi  )
+TLHcrsends=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | wc -l ; else echo "0" ; fi  )
+endsTLHcrs=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | awk -F "\t" '{print $1}' | sort -u | wc -l ; else echo "0" ; fi  )
+repeatrepcoords=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | awk '{if($0 ~ ">") {print $0} else {print "NA"}}' | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk '{if($0 == "NA") {print $0} else if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}' ; else echo "NA" ; fi  )
+repeatrepsize=$(if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c ; else echo "NA" ; fi )
+repeatavgsize=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_cluster.fa" ]; then seqkit stat -T subtelomeric_repeats/${prefix}.repeat_cluster.fa  | awk 'NR>1 {print $7}' | awk -F "." '{print $1}' ; else echo "NA" ; fi )
+repeatrep=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' ; else echo "NA" ; fi  )
+
+echo "${prefix};${assembly2};${contigs};${telomericrepeats};${telomericends};${TLHcrsrepeats};${TLHcrsends};${endsTLHcrs};${repeatrepcoords};${repeatrepsize};${repeatavgsize};${repeatrep}" | tr ';' '\t' >> summary_stats.tsv
+
+
 
 
 cd ../
@@ -526,12 +572,13 @@ ls subtelomeric_repeats/*.WG_blast.bed | while read file
 do
 sample=$( echo "${file}" | awk -F "/" '{print $NF}' |  sed 's/.repeat_rep.WG_blast.bed//g' )
 assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
-replength=$( grep -v '>' subtelomeric_repeats/${sample}.repeat_rep.fa | tr '\n' 'XXX' | sed 's/XXX//g' | wc -c  )
+replength=$( grep -v '>' subtelomeric_repeats/${sample}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c  )
 rep=$( grep '>' subtelomeric_repeats/${sample}.repeat_rep.fa | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk -v tipsize="$tipsize" '{if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}'   )
-tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' | bedtools getfasta -fi ${assembly} -bed - -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
+tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' > subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed
+bedtools getfasta -fi ${assembly} -bed subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
 ##number of repeats used
 count=$( grep '>' subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa | wc -l )
-lz-ani all2all -V 0 --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv 2> lz-ani.${sample}.log
+lz-ani all2all --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv 2> lz-ani.${sample}.log
 
 ##taking the global ANI = "The number of identical bases across local alignments divided by the length of the query/reference genome"
 ##otherwise small alignments get found to have good ANI but could cover just a few bases
