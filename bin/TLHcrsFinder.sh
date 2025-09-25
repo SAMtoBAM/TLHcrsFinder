@@ -578,7 +578,7 @@ tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {p
 bedtools getfasta -fi ${assembly} -bed subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
 ##number of repeats used
 count=$( grep '>' subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa | wc -l )
-lz-ani all2all -V 0 --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv 2> lz-ani.${sample}.log
+lz-ani all2all --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv 2> lz-ani.${sample}.log
 
 ##taking the global ANI = "The number of identical bases across local alignments divided by the length of the query/reference genome"
 ##otherwise small alignments get found to have good ANI but could cover just a few bases
