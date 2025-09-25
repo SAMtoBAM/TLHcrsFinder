@@ -61,7 +61,7 @@ between=suppressMessages(suppressWarnings(print(ggplot(data=rep_gANI, aes(x=quer
 final=between %>% insert_left(tree, width=0.75) %>% insert_right(within, width=0.05)
 
 ##try to generate a image size relative to the number of genomes...
-WGwidthFrac = (nrow(tree$data)-1)*5
-WGheightFrac = (nrow(tree$data)-1)*4
+WGwidthFrac = (nrow(tree$data)-1)*.15
+WGheightFrac = (nrow(tree$data)-1)*1
 
 ggsave("phylogeny_plus_gANI_heatmap.svg", plot = final, units = "in", height = WGheightFrac, width = WGwidthFrac, limitsize = FALSE)
