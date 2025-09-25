@@ -316,7 +316,7 @@ fi
 echo "######### Adding results to summary file"
 
 ##sample = $prefix
-assembly2=$( echo ${assembly} | awk -F "/" '{print $NF}' )
+assembly2=$( cat ${assemblylistpath}  | awk -v prefix="$prefix" -F "\t" '{if($1== prefix) print $2}' )
 assemblytype=$( echo ${assembly2} | awk -F "." '{if($NF == "gz" || $NF == "bgzip" || $NF == "gzip" ) {print "compressed"} else {print "uncompressed"}}' )
 contigs=$( if [[ $assemblytype == "uncompressed"  ]]; then grep '>' ${assemblypath} | wc -l ; else zgrep '>' ${assemblypath} | wc -l ; fi )
 telomericrepeats=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | wc -l ; else echo "0" ; fi )
@@ -376,14 +376,18 @@ cd ${output}
 
 echo "######### Running TLHcrsFinder on sample ${prefix}"
 
-##create link to assembly in the output folder
-ln -sf ${assemblypath} assemblies/
-assembly=$( echo ${assembly} | awk -F "/" '{print "assemblies/"$NF}' )
-
-
 ##check if assembly is compressed or not
 compressed=$( echo ${assembly} | awk -F "." '{if($NF == "gz") {print "yes"} else {print "no"}}' )
 
+##create link to assembly in the output folder
+if [[ $compressed == "yes" ]]
+then
+ln -sf ${assemblypath} assemblies/${prefix}.fa.gz
+assembly=$( echo "assemblies/${prefix}.fa.gz" )
+else 
+ln -sf ${assemblypath} assemblies/${prefix}.fa
+assembly=$( echo "assemblies/${prefix}.fa" )
+fi
 
 ##get the sametools index as a quick way to generate a file with contig sizes etc
 samtools faidx ${assembly}
@@ -513,7 +517,7 @@ fi
 echo "######### Adding results to summary file"
 
 ##sample = $prefix
-assembly2=$( echo ${assembly} | awk -F "/" '{print $NF}' )
+assembly2=$( cat ${assemblylistpath}  | awk -v prefix="$prefix" -F "\t" '{if($1== prefix) print $2}' )
 assemblytype=$( echo ${assembly2} | awk -F "." '{if($NF == "gz" || $NF == "bgzip" || $NF == "gzip" ) {print "compressed"} else {print "uncompressed"}}' )
 contigs=$( if [[ $assemblytype == "uncompressed"  ]]; then grep '>' ${assemblypath} | wc -l ; else zgrep '>' ${assemblypath} | wc -l ; fi )
 telomericrepeats=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | wc -l ; else echo "0" ; fi )
