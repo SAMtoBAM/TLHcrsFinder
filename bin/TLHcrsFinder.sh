@@ -578,11 +578,11 @@ echo "sample;repeat_representative;average_gANI;count" | tr ';' '\t' > gANI.with
 ls subtelomeric_repeats/*.WG_blast.bed | while read file
 do
 sample=$( echo "${file}" | awk -F "/" '{print $NF}' |  sed 's/.repeat_rep.WG_blast.bed//g' )
-assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
+assembly=$( ls assemblies/ | grep "${sample}\.fa" | grep -v "\.fai"$ | grep -v "\.bed"$ | grep -v "\.gzi"$ )
 replength=$( grep -v '>' subtelomeric_repeats/${sample}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c  )
 rep=$( grep '>' subtelomeric_repeats/${sample}.repeat_rep.fa | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk -v tipsize="$tipsize" '{if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}'   )
 tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' > subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed
-bedtools getfasta -fi ${assembly} -bed subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
+bedtools getfasta -fi assemblies/${assembly} -bed subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
 ##number of repeats used
 count=$( grep '>' subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa | wc -l )
 lz-ani all2all --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv 2> lz-ani.${sample}.log
@@ -603,9 +603,9 @@ tail -n+2 gANI.within_repeats.tsv | awk -F "\t" '{print $1"\t"$2}' | while read 
 do
 sample=$( echo "${bed}" | awk -F "\t" '{print $1}' )
 coords=$( echo "${bed}" | awk -F "\t" '{print $2}' )
-assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
+assembly=$( ls assemblies/ | grep "${sample}\.fa" | grep -v "\.fai"$ | grep -v "\.bed"$ | grep -v "\.gzi"$ )
 echo "${coords};${sample}" | tr ';' '\t' | tr '-' '\t' | tr ':' '\t' >> repeat_representatives.bed
-samtools faidx ${assembly} "${coords}"
+samtools faidx assemblies/${assembly} "${coords}"
 done > repeat_representatives.fa
 
 lz-ani all2all --in-fasta repeat_representatives.fa --out subtelomeric_repeats_comparisons/repeat_representatives.ani.tsv 2> lz-ani.repeat_representatives.log
