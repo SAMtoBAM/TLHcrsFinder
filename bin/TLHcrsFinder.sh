@@ -163,6 +163,9 @@ compressed=$( echo ${assembly} | awk -F "." '{if($NF == "gz") {print "yes"} else
 
 
 echo "######### Starting TLHcrsFinder"
+
+[ -d "${output}" ] && echo "ERROR: output folder already exists" && exit
+
 echo "######### Output in ${output}"
 
 
