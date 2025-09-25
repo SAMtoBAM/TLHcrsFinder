@@ -592,11 +592,12 @@ done
 ##between assemblies using the representative
 
 ##get a refined list of the representatives per repeat
-tail -n+2 gANI.within_repeats.tsv | awk -F "\t" '{print $2}' | while read bed
+tail -n+2 gANI.within_repeats.tsv | awk -F "\t" '{print $1"\t"$2}' | while read bed
 do
-sample=$( echo "${bed}" | awk -F "_" '{print $1}' )
+sample=$( echo "${bed}" | awk -F "\t" '{print $1}' )
+coords=$( echo "${bed}" | awk -F "\t" '{print $2}' )
 assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
-samtools faidx ${assembly} "${bed}" 
+samtools faidx ${assembly} "${coords}" 
 done > repeat_representatives.fa
 
 ##make a useful bed file of these representatives
