@@ -458,7 +458,7 @@ then
 
 ##we shall now have identified any repeats that a common across these contig ends
 ##now we want to extract a reference sequence for the repeat based on all the coordinates identifed
-tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | bedtools getfasta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
+tail -n+2 contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.bed | ta -fi contig_ends/${prefix}.${tipsize2}kb_ends.fa -bed - -fo contig_ends_coverage/${prefix}.${tipsize2}kb_ends.nucmer.paf.repeats.fa
 
 ##then generate clusters based on a 80/80/80 threshold
 ##and selecting a representative per cluster (the longest sequence meeting the threshold)
@@ -574,7 +574,8 @@ sample=$( echo "${file}" | awk -F "/" '{print $NF}' |  sed 's/.repeat_rep.WG_bla
 assembly=$( cat ${assemblylistpath} | awk -F "\t" -v sample="$sample" '{if($1 == sample) {print $2}}' | awk -F "/" '{print "assemblies/"$NF}' )
 replength=$( grep -v '>' subtelomeric_repeats/${sample}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c  )
 rep=$( grep '>' subtelomeric_repeats/${sample}.repeat_rep.fa | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk -v tipsize="$tipsize" '{if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}'   )
-tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' | bedtools getfasta -fi ${assembly} -bed - -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
+tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' > subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed
+bedtools getfasta -fi ${assembly} -bed subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
 ##number of repeats used
 count=$( grep '>' subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa | wc -l )
 lz-ani all2all -V 0 --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa --out subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv 2> lz-ani.${sample}.log
