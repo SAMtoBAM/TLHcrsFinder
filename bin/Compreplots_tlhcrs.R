@@ -60,8 +60,17 @@ between=suppressMessages(suppressWarnings(print(ggplot(data=rep_gANI, aes(x=quer
 
 final=between %>% insert_left(tree, width=0.75) %>% insert_right(within, width=0.05)
 
-##try to generate a image size relative to the number of genomes...
-WGwidthFrac = (nrow(tree$data)-1)*.15
-WGheightFrac = (nrow(tree$data)-1)*1
 
-ggsave("phylogeny_plus_gANI_heatmap.svg", plot = final, units = "in", height = WGheightFrac, width = WGwidthFrac, limitsize = FALSE)
+##try to get dimensions of the plotted figure that adjust to the number of tips etc
+ntips <- ape::Ntip(midroot_tree)
+cell_size <- max(0.08, min(0.6, 15 / ntips))
+tree_extra_width <- 4
+##try to get a good width for the heatmap from within comparisons
+side_extra_width <- ntips * cell_size 
+
+# total figure dimensions
+WGheight <- ntips * cell_size
+WGwidth  <- (ntips * cell_size) + tree_extra_width + side_extra_width
+
+ggsave("phylogeny_plus_gANI_heatmap.svg", plot = final, units = "in", height = WGheight, width = WGwidth, limitsize = FALSE)
+
