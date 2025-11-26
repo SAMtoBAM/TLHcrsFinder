@@ -27,6 +27,23 @@ tip_order=tree$data %>%
 ###plotting repeat similarities using global ANI in tile colours
 within_gANI=read.csv(file="gANI.within_repeats.tsv", header=T, sep='\t')
 
+##add the missing samples that are in the tree
+missing <- setdiff(tip_order, within_gANI$sample)
+
+##add blank rows
+if(length(missing) > 0){
+  blank_rows <- data.frame(
+    sample = missing,
+    average_gANI = NA,
+    count = NA,
+    repeat_representative = missing
+  )
+  within_gANI <- rbind(within_gANI, blank_rows)
+}
+
+##reorder after adding blanks
+within_gANI$sample = factor(within_gANI$sample, levels = tip_order)
+
 within_gANI$gANI = within_gANI$average_gANI*100
 
 ##rearrange order of genomes by tree
@@ -42,8 +59,26 @@ within=suppressMessages(suppressWarnings(print(ggplot(data=within_gANI, aes(x=""
   theme_classic()+
   theme(axis.text.x = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), axis.text.y = element_blank(), axis.title.y = element_blank(), legend.position = "NA"))))
 
-###
+###read in gANI comparisons between samples
 rep_gANI=read.csv(file="gANI.between_repeat_representatives.tsv", header=T, sep='\t')
+
+##add missing samples
+all_pairs <- expand.grid(
+  query_sample = tip_order,
+  ref_sample   = tip_order,
+  stringsAsFactors = FALSE
+)
+
+##left-join your data into the complete matrix
+rep_gANI_full <- dplyr::left_join(all_pairs, rep_gANI,
+                                  by = c("query_sample","ref_sample"))
+
+##reorder
+rep_gANI_full$query_sample = factor(rep_gANI_full$query_sample, levels = tip_order)
+rep_gANI_full$ref_sample   = factor(rep_gANI_full$ref_sample,   levels = tip_order)
+
+rep_gANI = rep_gANI_full
+
 
 rep_gANI$gANI = rep_gANI$gANI*100
 
