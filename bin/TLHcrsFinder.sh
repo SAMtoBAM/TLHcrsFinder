@@ -581,7 +581,7 @@ sample=$( echo "${file}" | awk -F "/" '{print $NF}' |  sed 's/.repeat_rep.WG_bla
 assembly=$( ls assemblies/ | grep "${sample}\.fa" | grep -v "\.fai"$ | grep -v "\.bed"$ | grep -v "\.gzi"$ )
 replength=$( grep -v '>' subtelomeric_repeats/${sample}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c  )
 rep=$( grep '>' subtelomeric_repeats/${sample}.repeat_rep.fa | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk -v tipsize="$tipsize" '{if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}'   )
-tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.5*replength)) {print}}' > subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed
+tail -n+2 $file | awk -v replength="$replength" '{if($3-$2 > (0.25*replength)) {print}}' > subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed
 bedtools getfasta -fi assemblies/${assembly} -bed subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.bed -fo subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa
 ##number of repeats used
 count=$( grep '>' subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.fa | wc -l )
@@ -589,7 +589,7 @@ lz-ani all2all --in-fasta subtelomeric_repeats_comparisons/${sample}.repeat_rep.
 
 ##taking the global ANI = "The number of identical bases across local alignments divided by the length of the query/reference genome"
 ##otherwise small alignments get found to have good ANI but could cover just a few bases
-cat subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv | awk '{print $6}' | awk ' { a[i++]=$1; } END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }' | awk -v sample="$sample" -v rep="$rep" -v count="$count" '{print sample"\t"rep"\t"$1"\t"count}' >> gANI.within_repeats.tsv
+tail -n+2 subtelomeric_repeats_comparisons/${sample}.repeat_rep.WG_blast.ani.tsv | awk '{print $6}' | awk ' { a[i++]=$1; } END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1]; }' | awk -v sample="$sample" -v rep="$rep" -v count="$count" '{print sample"\t"rep"\t"$1"\t"count}' >> gANI.within_repeats.tsv
 
 done
 
