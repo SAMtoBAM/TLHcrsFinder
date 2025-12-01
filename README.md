@@ -1,5 +1,5 @@
 <p align="center" >
-    <img src="https://github.com/SAMtoBAM/TLR_finder/blob/main/logo/TLRFinder_logo.png" width=100%>
+    <img src="https://github.com/SAMtoBAM/TLRFinder/blob/main/logo/TLRFinder_logo.png" width=100%>
 </p>
 
 [![Zenodo DOI](https://zenodo.org/badge/1052979411.svg)](https://doi.org/10.5281/zenodo.17093898)
