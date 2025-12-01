@@ -156,7 +156,7 @@ This step requires you to download a large database of conserved domains in orde
         gunzip cddid.tbl.gz
         cd ../
 
-Then use rpstblastn to search against these domains with your representative TLR OR your all TLRs in your assembly <br/>
+Then use rpstblastn to search against these domains with your representative TLR OR all TLRs found in your assembly dataset <br/>
 Here we are using the TLR representative for GCA030345115 <br/>
 We also just grab the top 5 for the blast results for looking at the function using the cdd index table (this can definitely be increased if necessary) 
 
