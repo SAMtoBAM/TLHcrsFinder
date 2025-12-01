@@ -1,36 +1,36 @@
 <p align="center" >
-    <img src="https://github.com/SAMtoBAM/TLHcrs_finder/blob/main/logo/TLHcrsFinder_logo.png" width=100%>
+    <img src="https://github.com/SAMtoBAM/TLR_finder/blob/main/logo/TLRFinder_logo.png" width=100%>
 </p>
 
 [![Zenodo DOI](https://zenodo.org/badge/1052979411.svg)](https://doi.org/10.5281/zenodo.17093898)
-[![Anaconda_version](https://anaconda.org/samtobam/tlhcrsfinder/badges/version.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
-[![Anaconda_platforms](https://anaconda.org/samtobam/tlhcrsfinder/badges/platforms.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
-[![Anaconda_downloads](https://anaconda.org/samtobam/tlhcrsfinder/badges/downloads.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
-[![Anaconda-Server Badge](https://anaconda.org/samtobam/tlhcrsfinder/badges/latest_release_date.svg)](https://anaconda.org/samtobam/tlhcrsfinder)
+[![Anaconda_version](https://anaconda.org/samtobam/TLRFinder/badges/version.svg)](https://anaconda.org/samtobam/TLRFinder)
+[![Anaconda_platforms](https://anaconda.org/samtobam/TLRFinder/badges/platforms.svg)](https://anaconda.org/samtobam/TLRFinder)
+[![Anaconda_downloads](https://anaconda.org/samtobam/TLRFinder/badges/downloads.svg)](https://anaconda.org/samtobam/TLRFinder)
+[![Anaconda-Server Badge](https://anaconda.org/samtobam/TLRFinder/badges/latest_release_date.svg)](https://anaconda.org/samtobam/TLRFinder)
 
 
-# TLHcrsFinder
-TLHcrsFinder is a tools desgined to detect and analyse **T**elomere-**L**inked-**H**elicase **C**ontaining **R**egion**S** (TLHcrs) repeats
+# TLRFinder
+TLRFinder is a tools desgined to detect and analyse **T**elomere-**L**inked-**R**epeat (TLR)
 
-TLHcrs repeats are, as the name describes, regions adjacent to telomeres that are conserved across chromosome ends and generally contain helicase genes <br/>
+TLRs are, as the name describes, regions adjacent to telomeres that are conserved across chromosome ends and generally contain helicase genes <br/>
 These repeats, such as the most perhaps most well known Y-prime region in _S. cerevisiae_, are conserved across diverse fungi <br/>
 With the advent of Long-read sequencing we now have an increasing number of well assembled genomes with the subtelomeres intact <br/>
-Therefore we are now primed for looking at the TLHcrs repeats and their evolution.
+Therefore we are now primed for looking at the TLRs and their evolution.
 
-All that is required to run TLHcrsFinder is an assembly in fasta format (can be bgzip compressed) or a tsv file containing a list of assemblies (first column: sample name; second column: assembly) <br/>
+All that is required to run TLRFinder is an assembly in fasta format (can be bgzip compressed) or a tsv file containing a list of assemblies (first column: sample name; second column: assembly) <br/>
 NOTE: Do not use hyphens '-' or other special characters in the sample/file names
 
 This tool was developed for [O'Donnell et al. 2025]() (please cite this publication if you find this tool useful)
 
 # Conda installation
 
-    conda install samtobam::tlhcrsfinder
+    conda install samtobam::TLRFinder
 
 # How to use
 
-    TLHcrsFinder.sh -a assembly.fa
+    TLRFinder.sh -a assembly.fa
     or
-    TLHcrsFinder.sh -al list.tsv
+    TLRFinder.sh -al list.tsv
     
     Required inputs:
     -a | --assembly     Genome assembly in fasta format (*.fa / *.fasta / *.fna) and can be gzipped (*.gz) with bgzip
@@ -38,10 +38,10 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
     -al | --assemblylist     A tsv file containing sample names in the first column and assembly paths in the second column
 
     Recommended inputs:
-    -ts | --tipsize     Length of contig ends to be extracted for TLHcrs detection (Default: 50000)
+    -ts | --tipsize     Length of contig ends to be extracted for TLR detection (Default: 50000)
     -tr | --telomererepeat       Telomeric repeat pattern (Default: TTAGGG)
-    -ct | --covthreshold    The amount of coverage required for a region to be considered for TLHcrs clustering relative to the number fo telomeres (Default = 0.75)
-    -sm | --sizemin     The minimum size of a region passing the coverage threshold to be considered as a potential TLHcrs region (Default: 2000)
+    -ct | --covthreshold    The amount of coverage required for a region to be considered for TLR clustering relative to the number fo telomeres (Default = 0.75)
+    -sm | --sizemin     The minimum size of a region passing the coverage threshold to be considered as a potential TLR region (Default: 2000)
     
     Multiple assembly specific parameters (if using --al)
     -b | --bootstraps   Number of bootstrap tests to be performed by mashtree (Default: 1000)
@@ -49,15 +49,15 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
     Optional parameters:
     -w | --window       Number of basepairs for window averaging for coverage (Default: 10)
     -s | --slide        Number of basepairs for the window to slide for coverage (Default: 5)
-    -p | --prefix       Prefix for output (Default: TLHcrsFinder)
-    -o | --output       Name of output folder for all results (default: TLHcrsFinder_output)
+    -p | --prefix       Prefix for output (Default: TLRFinder)
+    -o | --output       Name of output folder for all results (default: TLRFinder_output)
     -h | --help         Print this help message
 
 
 
-## How does TLHcrsFinder work
+## How does TLRFinder work
 
-TLHcrsFinder works in 10 main steps (each step is run on all assemblies provided -al)
+TLRFinder works in 10 main steps (each step is run on all assemblies provided -al)
 
 1. Extract 50kb from the ends of contigs >100kb
 2. Identify Telomeric sequences genomes wide and determine the number within the contig ends
@@ -66,13 +66,13 @@ TLHcrsFinder works in 10 main steps (each step is run on all assemblies provided
 5. Extract contiguous regions with a coverage > (0.75*'the number of telomeric sequences')
 6. Remove regions < 2kb
 7. Cluster the nucleotide sequence of the remaining regions using the 80/80 principal
-8. Consider the largest cluster as the TLHcrs repeat and take the largest version as the representative
-9. Search the whole genome using BLASTn using the representative TLHcrs repeat
-10. Plot the alignment and whole genome positions of TLHcrs repeats for manual verification/scrutiny
+8. Consider the largest cluster as the TLR and take the largest version as the representative
+9. Search the whole genome using BLASTn using the representative TLR
+10. Plot the alignment and whole genome positions of TLRs for manual verification/scrutiny
 
-TLHcrsFinder runs an additional 3 steps if provided multiple assemblies using -al
+TLRFinder runs an additional 3 steps if provided multiple assemblies using -al
 11. Rapidly generate a k-mer NJ phylogeny using mashtree
-12. Calculate global-ANI (g-ANI) statistics for TLHcrs repeats within an assembly and between TLHcrs repeat representatives
+12. Calculate global-ANI (g-ANI) statistics for TLRs within an assembly and between TLR representatives
 13. Plot the tree and g-ANI stats side by side
 
 
@@ -83,24 +83,24 @@ TLHcrsFinder runs an additional 3 steps if provided multiple assemblies using -a
     Column 3 : 'contigs' : Number of contigs in assembly <br/>
     Column 4 : 'telomeric_repeats' : Number of good telomeric repeat regions found (minimum of 50bp) <br/>
     Column 5 : 'telomeric_repeats_contig_ends' : Number of the above telomeric repeats found within the contig ends (Default: 50kb from end of contigs larger than 100kb) <br/>
-    Column 6 : 'TLHcrs_regions' : Number of good TLHcrs regions detected genome wide <br/>
-    Column 7 : 'TLHcrs_regions_contig_ends' : Number of the above TLHcrs repeats found within the contig ends (Default: 50kb from end of contigs larger than 100kb) <br/>
-    Column 8 : 'TLHcrs_representative_coords' : The coordinates in the assembly to the TLHcrs representative used in the analyses <br/>
-    Column 9 : 'TLHcrs_representative_size' : The size in basepairs of the TLHcrs representative <br/>
-    Column 10 : 'TLHcrs_representative_size' : The average size of the regions detected that clustered with the TLHcrs representative <br/>
-    Column 12 : 'TLHcrs_representative' : The nucleotide sequence of the TLHcrs representative <br/>
+    Column 6 : 'TLR_regions' : Number of good TLRs detected genome wide <br/>
+    Column 7 : 'TLR_regions_contig_ends' : Number of the above TLRs found within the contig ends (Default: 50kb from end of contigs larger than 100kb) <br/>
+    Column 8 : 'TLR_representative_coords' : The coordinates in the assembly to the TLR representative used in the analyses <br/>
+    Column 9 : 'TLR_representative_size' : The size in basepairs of the TLR representative <br/>
+    Column 10 : 'TLR_representative_size' : The average size of the regions detected that clustered with the TLR representative <br/>
+    Column 12 : 'TLR_representative' : The nucleotide sequence of the TLR representative <br/>
 
 -Per sample plots are all placed in **plotting_Rscripts** <br/>
-    plotting_Rscripts/\*.end_alignments.svg : Contigs with ends aligned with TLHcrs repeat regions highlighted (red) and telomeric repeats showing (black dots) <br/>
-    plotting_Rscripts/\*.end_alignments.filtered.svg : Same as above but only with contig ends containing at least one telomeric repeat or TLHcrs repeat <br/>
-    plotting_Rscripts/\*.whole_genome.svg : Positions of telomeric_repeats (dots) and TLHcrs_regions (triangles) in the whole genome <br/>
+    plotting_Rscripts/\*.end_alignments.svg : Contigs with ends aligned with TLRs highlighted (red) and telomeric repeats showing (black dots) <br/>
+    plotting_Rscripts/\*.end_alignments.filtered.svg : Same as above but only with contig ends containing at least one telomeric repeat or TLR <br/>
+    plotting_Rscripts/\*.whole_genome.svg : Positions of telomeric_repeats (dots) and TLR_regions (triangles) in the whole genome <br/>
 
 -Comparisons between samples are placed in output folder
-    phylogeny_plus_gANI_heatmap.svg : a midrooted mashtree of all assemblies horizontally aligned with lz-ani calulated global ANI (gANI) scores comparing the representatives of each assemblies TLHcrs repeat. Far right is the same gANI scores but calculated between repeats for the same assembly.
+    phylogeny_plus_gANI_heatmap.svg : a midrooted mashtree of all assemblies horizontally aligned with lz-ani calulated global ANI (gANI) scores comparing the representatives of each assemblies TLR. Far right is the same gANI scores but calculated between repeats for the same assembly.
 
 ## The coverage threshold
 This value is essentially is used to find repeats that are at least in this many copies compared to telomeric sequences <br/>
-This tools was designed primarily on Fusarium and Pyricularia assemblies which contain (if present) TLHcrs repeats on most chromosome ends <br/>
+This tools was designed primarily on Fusarium and Pyricularia assemblies which contain (if present) TLRs on most chromosome ends <br/>
 However they may be less frequent in other species <br/>
 The default of 0.75 is too make sure that other potentially repetitive regions within 50kb of the contig ends are not kept
 
@@ -109,17 +109,17 @@ When looking a the alignments of the contig ends (and maybe manually reordering 
 Here is a few lines you can run in order to extract and detail another repeat <br/>
 All you need to know is the coordinates for one of the repeats (will be considered the representative copy) <br/>
 For Example: I extracted a secondary repeat in the assembly 'GCA030345115.fa' from contig 'GCA030345115_CP128282.1' between position 2 and 9881 (GCA030345115_CP128282.1:2-9881) <br/>
-In my run of TLHcrsFinder on 'GCA030345115.fa', the prefix was GCA030345115 and therefore in the TLHcrsFinder output folder I ran the below to add the secondary repeat:
+In my run of TLRFinder on 'GCA030345115.fa', the prefix was GCA030345115 and therefore in the TLRFinder output folder I ran the below to add the secondary repeat:
 
-        ##my run of TLHcrsFinder commented out
-        #TLHcrsFinder -a GCA030345115.fa -p GCA030345115 -o GCA030345115_TLHcrsFinder_output
+        ##my run of TLRFinder commented out
+        #TLRFinder -a GCA030345115.fa -p GCA030345115 -o GCA030345115_TLRFinder_output
         
         prefix="GCA030345115"
         assembly="GCA030345115.fa"
         coords="GCA030345115_CP128282.1:2-9881"
 
-        ##move into the TLHcrsFinder output for 'GCA030345115.fa'
-        cd GCA030345115_TLHcrsFinder_output/
+        ##move into the TLRFinder output for 'GCA030345115.fa'
+        cd GCA030345115_TLRFinder_output/
         
         ##manually extract the second repeat for ${prefix} based on using the synteny alignment script (only the primary repeat was found previously)
         samtools faidx ${assembly} ${coords} > subtelomeric_repeats/${prefix}.manual_second.repeat_rep.fa
@@ -137,9 +137,9 @@ In my run of TLHcrsFinder on 'GCA030345115.fa', the prefix was GCA030345115 and 
 
 
 ## How to look for known functional domains
-TLHcrsFinder looks for the conserved region however the actual expressed portion of the repeat (generally a helicase) is only contained within the repeat <br/>
+TLRFinder looks for the conserved region however the actual expressed portion of the repeat (generally a helicase) is only contained within the repeat <br/>
 Therefore you may be interested to find domains within the repeat as an indication of the function <br/>
-Notably, in [O'Donnell et al. 2025]() using TLHcrsFinder we found several examples of repeats containing genes that were not helicases.
+Notably, in [O'Donnell et al. 2025]() using TLRFinder we found several examples of repeats containing genes that were not helicases.
 
 This step requires you to download a large database of conserved domains in order to search against <br/>
 
@@ -155,13 +155,13 @@ This step requires you to download a large database of conserved domains in orde
         gunzip cddid.tbl.gz
         cd ../
 
-Then use rpstblastn to search against these domains with your representative TLHcrs repeat OR your all TLHcrs repeats in your assembly <br/>
-Here we are using the TLHcrs repeat representative for GCA030345115 <br/>
+Then use rpstblastn to search against these domains with your representative TLR OR your all TLRs in your assembly <br/>
+Here we are using the TLR representative for GCA030345115 <br/>
 We also just grab the top 5 for the blast results for looking at the function using the cdd index table (this can definitely be increased if necessary) 
 
         sample="GCA030345115"
-        input="GCA030345115_TLHcrsFinder_output/subtelomeric_repeats/GCA030345115.repeat_rep.fa"
-        ##alternatively if having used multiple assemblies with -al you could use the combined 'TLHcrsFinder_output/repeat_representatives.fa' file which contains all TLHcrs repeat representatives from assemblies where it was found
+        input="GCA030345115_TLRFinder_output/subtelomeric_repeats/GCA030345115.repeat_rep.fa"
+        ##alternatively if having used multiple assemblies with -al you could use the combined 'TLRFinder_output/repeat_representatives.fa' file which contains all TLR representatives from assemblies where it was found
         tophits="5"
 
         ##get the outfmt 6 plus the actual sequence aigned in the query (our repeats)
