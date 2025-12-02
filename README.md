@@ -10,7 +10,7 @@
 
 
 # TLRFinder
-TLRFinder is a tools desgined to detect and analyse **T**elomere-**L**inked-**R**epeat (TLR)
+TLRFinder is a tools desgined to detect and analyse **T**elomere-**L**inked-**R**epeats (TLR)
 
 TLRs are, as the name describes, regions adjacent to telomeres that are conserved across chromosome ends <br/>
 The most commonly described version contains Telomere-Linked-Helicases, such as the Y' element in _S. cerevisiae_ <br/>
