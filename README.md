@@ -69,12 +69,12 @@ TLRFinder works in 10 main steps (each step is run on all assemblies provided -a
 7. Cluster the nucleotide sequence of the remaining regions using the 80/80 principal
 8. Consider the largest cluster as the TLR and take the largest version as the representative
 9. Search the whole genome using BLASTn using the representative TLR
-10. Plot the alignment and whole genome positions of TLRs for manual verification/scrutiny
+10. Plot the alignment and whole genome positions of TLRs for manual verification/scrutiny <br/>
 
-TLRFinder runs an additional 3 steps if provided multiple assemblies using -al
-11. Rapidly generate a k-mer NJ phylogeny using mashtree
-12. Calculate global-ANI (g-ANI) statistics for TLRs within an assembly and between TLR representatives
-13. Plot the tree and g-ANI stats side by side
+TLRFinder runs an additional 3 steps if provided multiple assemblies using -al <br/>
+&nbsp; 11. Rapidly generate a k-mer NJ phylogeny using mashtree <br/>
+&nbsp; 12. Calculate global-ANI (g-ANI) statistics for TLRs within an assembly and between TLR representatives <br/>
+&nbsp; 13. Plot the tree and g-ANI stats side by side <br/>
 
 
 ## Important output files
