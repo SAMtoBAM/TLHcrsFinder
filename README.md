@@ -25,7 +25,7 @@ This tool was developed for [O'Donnell et al. 2025]() (please cite this publicat
 
 # Conda installation
 
-    conda install samtobam::TLRFinder
+    conda install samtobam::tlrfinder
 
 # How to use
 
