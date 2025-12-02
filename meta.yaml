@@ -1,9 +1,9 @@
 package:
-  name: tlhcrsfinder
+  name: tlrfinder
   version: "1.0.1"  # Change this to your desired version
 
 source:
-  git_url: https://github.com/samtobam/TLHcrsFinder.git
+  git_url: https://github.com/samtobam/TLRFinder.git
   git_rev: main
    
 build:
@@ -38,8 +38,8 @@ requirements:
 
 test:
   commands:
-    - "TLHcrsFinder.sh --help"
+    - "TLRFinder.sh --help"
 
 about:
-  home: "https://github.com/samtobam/TLHcrsFinder"
-  summary: "Telomere-Linked-Helicase Containing RegionS (TLHcrs) repeat detection and analysis tool"
+  home: "https://github.com/samtobam/TLRFinder"
+  summary: "Telomere-Linked-Repeat (TLR) detection and analysis tool"

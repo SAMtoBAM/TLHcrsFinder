@@ -1,5 +1,5 @@
 
-#### script is designed to visualise the differences between TLHcrs repeats across a set of genomes
+#### script is designed to visualise the differences between TLRs across a set of genomes
 
 suppressMessages(suppressWarnings(library(ggplot2)))
 suppressMessages(suppressWarnings(library(ggtree)))

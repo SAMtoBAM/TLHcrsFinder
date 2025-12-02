@@ -1,5 +1,5 @@
 
-#### script is designed to visualise the alignments of the ends of contigs in order to identify telomeric and subtelomeric repeats (TLHcrs regions)
+#### script is designed to visualise the alignments of the ends of contigs in order to identify telomeric and Telomere-Linked-Repeats (TLRs)
 suppressMessages(suppressWarnings(library(gggenomes)))
 
 ##get the regions of the HTR (+-50kb) bed file
@@ -51,8 +51,8 @@ heightFrac = nrow(contigs) / 2 #
 ggsave("plotting_Rscripts/SAMPLE.end_alignments.svg", plot = ends, units = "in", height = heightFrac, width = widthFrac, limitsize = FALSE)
 
 
-##same as above but now using only contig ends with at least one telomere or TLHcrsrepeat region
-##first get a nonredundant list of all the contig ends with telomeres or TLHcrs repeats
+##same as above but now using only contig ends with at least one telomere or TLR
+##first get a nonredundant list of all the contig ends with telomeres or TLRs
 seq_list <- union(repeatbed$seq_id, telomeres$seq_id)
 ##now filter the contigs list by needing to contain one from the list
 contigs_filtered <- contigs[contigs$seq_id %in% seq_list, ]

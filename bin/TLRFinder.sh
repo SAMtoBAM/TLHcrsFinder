@@ -21,8 +21,8 @@ slide="5"
 bootstraps="1000"
 
 
-prefix="TLHcrsFinder"
-output="TLHcrsFinder_output"
+prefix="TLRFinder"
+output="TLRFinder_output"
 help="nohelp"
 
 ## to clean up a bunch of output from the tools in order to reduce all the unnecessary output
@@ -96,11 +96,11 @@ case "$key" in
     -h|--help)
     echo "
  
-    TLHcrsFinder (version: ${version})
+    TLRFinder (version: ${version})
 
-    TLHcrsFinder.sh -a assembly.fa
+    TLRFinder.sh -a assembly.fa
     or
-    TLHcrsFinder.sh -al list.tsv
+    TLRFinder.sh -al list.tsv
     
     Required inputs:
     -a | --assembly     Genome assembly in fasta format (*.fa / *.fasta / *.fna) and can be gzipped (*.gz) with bgzip
@@ -108,10 +108,10 @@ case "$key" in
     -al | --assemblylist     A tsv file containing sample names in the first column and assembly paths in the second column
 
     Recommended inputs:
-    -ts | --tipsize     Length of contig ends to be extracted for TLHcrs detection (Default: 50000)
+    -ts | --tipsize     Length of contig ends to be extracted for TLR detection (Default: 50000)
     -tr | --telomererepeat       Telomeric repeat pattern (Default: TTAGGG)
-    -ct | --covthreshold    The amount of coverage required for a region to be considered for TLHcrs clustering relative to the number fo telomeres (Default = 0.75)
-    -sm | --sizemin     The minimum size of a region passing the coverage threshold to be considered as a potential TLHcrs region (Default: 2000)
+    -ct | --covthreshold    The amount of coverage required for a region to be considered for TLR clustering relative to the number fo telomeres (Default = 0.75)
+    -sm | --sizemin     The minimum size of a region passing the coverage threshold to be considered as a potential TLR (Default: 2000)
     
     Multiple assembly specific parameters (if using --al)
     -b | --bootstraps   Number of bootstrap tests to be performed by mashtree (Default: 1000)
@@ -119,15 +119,15 @@ case "$key" in
     Optional parameters:
     -w | --window       Number of basepairs for window averaging for coverage (Default: 10)
     -s | --slide        Number of basepairs for the window to slide for coverage (Default: 5)
-    -p | --prefix       Prefix for output (Default: TLHcrsFinder)
-    -o | --output       Name of output folder for all results (default: TLHcrsFinder_output)
+    -p | --prefix       Prefix for output (Default: TLRFinder)
+    -o | --output       Name of output folder for all results (default: TLRFinder_output)
     -h | --help         Print this help message
     "
     exit
     ;;
     *)  # catch invalid args
     echo "ERROR: Unknown option: '$1'"
-    echo "Run 'TLHcrsFinder.sh -h' to see valid options"
+    echo "Run 'TLRFinder.sh -h' to see valid options"
     exit 1
     ;;
     esac
@@ -149,7 +149,7 @@ tipsize2=$( echo ${tipsize} | awk '{print $1/1000}' )
 if [[ $assembly != ""  ]]
 then
 
-echo "An assembly was provided using -a; therefore running TLHcrsFinder on a single input assembly"
+echo "An assembly was provided using -a; therefore running TLRFinder on a single input assembly"
 
 assemblypath=$( realpath ${assembly} )
 [ ! -f "${assemblypath}" ] && echo "ERROR: Cannot find path to assembly file provided by -a; check path is correct and file exists" && exit
@@ -158,11 +158,11 @@ assemblypath=$( realpath ${assembly} )
 compressed=$( echo ${assembly} | awk -F "." '{if($NF == "gz") {print "yes"} else {print "no"}}' )
 
 #######################################################################################################
-####################################BEGIN FINDING THE TLHCRS REPEAT#################################### 
+##############################BEGIN FINDING THE TELOMERE-LINKED-REPEATS################################
 #######################################################################################################
 
 
-echo "######### Starting TLHcrsFinder"
+echo "######### Starting TLRFinder"
 
 [ -d "${output}" ] && echo "ERROR: output folder already exists" && exit
 
@@ -182,7 +182,7 @@ mkdir subtelomeric_repeats
 mkdir plotting_Rscripts
 
 ##geneate header for the summary file 
-echo "sample;assembly;contigs;telomeric_repeats;telomeric_repeats_contig_ends;TLHcrs_regions;TLHcrs_regions_contig_ends;contig_ends_TLHcrs;TLHcrs_representative_coords;TLHcrs_representative_size;TLHcrs_average_size;TLHcrs_representative" | tr ';' '\t' > summary_stats.tsv
+echo "sample;assembly;contigs;telomeric_repeats;telomeric_repeats_contig_ends;TLR_regions;TLR_regions_contig_ends;contig_ends_TLR;TLR_representative_coords;TLR_representative_size;TLR_average_size;TLR_representative" | tr ';' '\t' > summary_stats.tsv
 
 
 ##create link to assembly in the output folder
@@ -304,13 +304,13 @@ cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> assemblies/${prefix}.genome.
 echo "######### Plotting contig end alignments and genome-wide distribution"
 
 
-Rscriptpath=$( which Finderplots_tlhcrs.R )
+Rscriptpath=$( which Finderplots_TLRs.R )
 cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
 Rscript plotting_Rscripts/${prefix}.R
 
 else
-echo "######### WARNING: No TLHcrs repeats were found in ${prefix}:${assembly}"
+echo "######### WARNING: No TLRs were found in ${prefix}:${assembly}"
 fi
 
 echo "######### Adding results to summary file"
@@ -321,32 +321,32 @@ assemblytype=$( echo ${assembly2} | awk -F "." '{if($NF == "gz" || $NF == "bgzip
 contigs=$( if [[ $assemblytype == "uncompressed"  ]]; then grep '>' ${assemblypath} | wc -l ; else zgrep '>' ${assemblypath} | wc -l ; fi )
 telomericrepeats=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | wc -l ; else echo "0" ; fi )
 telomericends=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | sort -u | wc -l ; else echo "0" ; fi  )
-TLHcrsrepeats=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed | wc -l ; else echo "0" ; fi  )
-TLHcrsends=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | wc -l ; else echo "0" ; fi  )
-endsTLHcrs=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | awk -F "\t" '{print $1}' | sort -u | wc -l ; else echo "0" ; fi  )
+TLRs=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed | wc -l ; else echo "0" ; fi  )
+TLRends=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | wc -l ; else echo "0" ; fi  )
+endsTLR=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | awk -F "\t" '{print $1}' | sort -u | wc -l ; else echo "0" ; fi  )
 repeatrepcoords=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | awk '{if($0 ~ ">") {print $0} else {print "NA"}}' | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk '{if($0 == "NA") {print $0} else if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}' ; else echo "NA" ; fi  )
 repeatrepsize=$(if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c ; else echo "NA" ; fi )
 repeatavgsize=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_cluster.fa" ]; then seqkit stat -T subtelomeric_repeats/${prefix}.repeat_cluster.fa  | awk 'NR>1 {print $7}' | awk -F "." '{print $1}' ; else echo "NA" ; fi )
 repeatrep=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' ; else echo "NA" ; fi  )
 
-echo "${prefix};${assembly2};${contigs};${telomericrepeats};${telomericends};${TLHcrsrepeats};${TLHcrsends};${endsTLHcrs};${repeatrepcoords};${repeatrepsize};${repeatavgsize};${repeatrep}" | tr ';' '\t' >> summary_stats.tsv
+echo "${prefix};${assembly2};${contigs};${telomericrepeats};${telomericends};${TLRs};${TLRends};${endsTLR};${repeatrepcoords};${repeatrepsize};${repeatavgsize};${repeatrep}" | tr ';' '\t' >> summary_stats.tsv
 
 
 else
 ##RUNNING NOW IF A LIST OF ASSEMBLIES WERE PROVIDED
 
-echo "A list of assemblies was provided using -al; therefore running TLHcrsFinder on a set of assemblies"
+echo "A list of assemblies was provided using -al; therefore running TLRFinder on a set of assemblies"
 
 
 assemblylistpath=$( realpath ${assemblylist} )
 [ ! -f "${assemblylistpath}" ] && echo "ERROR: Cannot find path to assembly list provided by -al; check path is correct and file exists" && exit
 
 #######################################################################################################
-####################################BEGIN FINDING THE TLHCRS REPEAT#################################### 
+###############################BEGIN FINDING THE TELOMERE-LINKED-REPEATS############################### 
 #######################################################################################################
 
 
-echo "######### Starting TLHcrsFinder"
+echo "######### Starting TLRFinder"
 echo "######### Output in ${output}"
 
 
@@ -362,7 +362,7 @@ mkdir ${output}/subtelomeric_repeats
 mkdir ${output}/plotting_Rscripts
 
 ##geneate header for the summary file 
-echo "sample;assembly;contigs;telomeric_repeats;telomeric_repeats_contig_ends;TLHcrs_regions;TLHcrs_regions_contig_ends;contig_ends_TLHcrs;TLHcrs_representative_coords;TLHcrs_representative_size;TLHcrs_average_size;TLHcrs_representative" | tr ';' '\t' > ${output}/summary_stats.tsv
+echo "sample;assembly;contigs;telomeric_repeats;telomeric_repeats_contig_ends;TLR_regions;TLR_regions_contig_ends;contig_ends_TLR;TLR_representative_coords;TLR_representative_size;TLR_average_size;TLR_representative" | tr ';' '\t' > ${output}/summary_stats.tsv
 
 
 cat ${assemblylistpath} | while read line
@@ -374,7 +374,7 @@ assemblypath=$( realpath ${assembly} )
 
 cd ${output}
 
-echo "######### Running TLHcrsFinder on sample ${prefix}"
+echo "######### Running TLRFinder on sample ${prefix}"
 
 ##check if assembly is compressed or not
 compressed=$( echo ${assembly} | awk -F "." '{if($NF == "gz") {print "yes"} else {print "no"}}' )
@@ -503,14 +503,14 @@ cat ${assembly}.fai | awk '{print $1"\t1\t"$2}'  >> assemblies/${prefix}.genome.
 echo "######### Plotting contig end alignments and genome-wide distribution"
 
 
-Rscriptpath=$( which Finderplots_tlhcrs.R )
+Rscriptpath=$( which Finderplots_TLRs.R )
 cat ${Rscriptpath} | sed "s/SAMPLE/${prefix}/g" > plotting_Rscripts/${prefix}.R
 
 Rscript plotting_Rscripts/${prefix}.R
 
 
 else
-echo "######### WARNING: No TLHcrs repeats were found in ${prefix}:${assembly}"
+echo "######### WARNING: No TLRs were found in ${prefix}:${assembly}"
 fi
 
 
@@ -522,15 +522,15 @@ assemblytype=$( echo ${assembly2} | awk -F "." '{if($NF == "gz" || $NF == "bgzip
 contigs=$( if [[ $assemblytype == "uncompressed"  ]]; then grep '>' ${assemblypath} | wc -l ; else zgrep '>' ${assemblypath} | wc -l ; fi )
 telomericrepeats=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | wc -l ; else echo "0" ; fi )
 telomericends=$( if [ -e "telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed" ]; then cat telomeric_repeats/${prefix}.${tipsize2}kb_ends.telomeres.bed  |  awk '{if($3-$2 > 50) print $1}'  | sort -u | wc -l ; else echo "0" ; fi  )
-TLHcrsrepeats=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed | wc -l ; else echo "0" ; fi  )
-TLHcrsends=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | wc -l ; else echo "0" ; fi  )
-endsTLHcrs=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | awk -F "\t" '{print $1}' | sort -u | wc -l ; else echo "0" ; fi  )
+TLRs=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.WG_blast.bed | wc -l ; else echo "0" ; fi  )
+TLRends=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | wc -l ; else echo "0" ; fi  )
+endsTLR=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed" ]; then cat subtelomeric_repeats/${prefix}.repeat_rep.ends_blast.bed | awk -F "\t" '{print $1}' | sort -u | wc -l ; else echo "0" ; fi  )
 repeatrepcoords=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | awk '{if($0 ~ ">") {print $0} else {print "NA"}}' | sed 's/>//g' | tr '-' '\t' | tr ':' '\t' | awk '{if($0 == "NA") {print $0} else if($4 == "") { print  $1":"$2"-"$3} else if($2 == "1") {print $1":"$4"-"$5} else {print $1":"($2+$4)"-"(($2+$4)+($5-$4))}}' ; else echo "NA" ; fi  )
 repeatrepsize=$(if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' | wc -c ; else echo "NA" ; fi )
 repeatavgsize=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_cluster.fa" ]; then seqkit stat -T subtelomeric_repeats/${prefix}.repeat_cluster.fa  | awk 'NR>1 {print $7}' | awk -F "." '{print $1}' ; else echo "NA" ; fi )
 repeatrep=$( if [ -e "subtelomeric_repeats/${prefix}.repeat_rep.fa" ]; then grep -v '>' subtelomeric_repeats/${prefix}.repeat_rep.fa | tr '\n' 'X' | sed 's/X//g' ; else echo "NA" ; fi  )
 
-echo "${prefix};${assembly2};${contigs};${telomericrepeats};${telomericends};${TLHcrsrepeats};${TLHcrsends};${endsTLHcrs};${repeatrepcoords};${repeatrepsize};${repeatavgsize};${repeatrep}" | tr ';' '\t' >> summary_stats.tsv
+echo "${prefix};${assembly2};${contigs};${telomericrepeats};${telomericends};${TLRs};${TLRends};${endsTLR};${repeatrepcoords};${repeatrepsize};${repeatavgsize};${repeatrep}" | tr ';' '\t' >> summary_stats.tsv
 
 
 
@@ -542,9 +542,9 @@ done
 
 cd ${output}
 
-echo "######### Running comparisons on TLHcrs repeats found across the set of assemblies provided"
+echo "######### Running comparisons on TLRs found across the set of assemblies provided"
 
-###because several assemblies were provided we can now compare their TLHcrs repeats
+###because several assemblies were provided we can now compare their TLRs
 
 
 echo "######### Generating a k-mer based NJ tree using mashtree"
@@ -569,7 +569,7 @@ fi
 fi
 
 
-echo "######### Comparing global-ANI stats between TLHcrs repeats within and between assemblies"
+echo "######### Comparing global-ANI stats between TLRs within and between assemblies"
 
 ##generate lz-ani similarity comparisons
 ##within an assembly
@@ -631,7 +631,7 @@ done
 
 ##generate the tree-heatmap plot
 
-Rscriptpath2=$( which Compreplots_tlhcrs.R )
+Rscriptpath2=$( which Compreplots_TLRs.R )
 cat ${Rscriptpath2} > phylogeny_plus_gANI_heatmap.R
 
 Rscript phylogeny_plus_gANI_heatmap.R
@@ -642,4 +642,4 @@ fi
 rm Rplots.pdf
 
 
-echo "######### TLHcrsFinder has finished; E noho rā"
+echo "######### TLRFinder has finished; E noho rā"
